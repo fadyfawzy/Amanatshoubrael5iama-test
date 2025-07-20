@@ -23,55 +23,29 @@ import {
 } from "@/components/ui/dialog"
 
 interface Question {
-  id: string
-  category: string
-  type: "mcq" | "truefalse"
+  id: number
   question: string
-  questionEn?: string
-  option1?: string
-  option2?: string
-  option3?: string
-  option4?: string
+  type: "mcq" | "truefalse"
+  options?: string[]
   correctAnswer: number | boolean
-  image?: string
+  difficulty?: "easy" | "medium" | "hard"
+  category?: string
 }
 
-const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
+interface FormData {
+  question: string
+  type: "mcq" | "truefalse"
+  options: string[]
+  correctAnswer: string
+  difficulty: "easy" | "medium" | "hard"
+  category: string
+}
 
-const sampleQuestions: Question[] = [
-  {
-    id: "1",
-    category: "جوالة ودليلات",
-    type: "mcq",
-    question: "من صفات الجوال؟",
-    option1: "الاتكال على الغير",
-    option2: "التعاون",
-    option3: "السلبية",
-    option4: "التردد",
-    correctAnswer: 1,
-  },
-  {
-    id: "2",
-    category: "كشافة ومرشدات",
-    type: "truefalse",
-    question: "الوعد الكشفي يتضمن الولاء لله والوطن والقانون الكشفي",
-    correctAnswer: true,
-  },
-  {
-    id: "3",
-    category: "أشبال وزهرات",
-    type: "mcq",
-    question: "كم عدد مبادئ الحركة الكشفية الأساسية؟",
-    option1: "2",
-    option2: "3",
-    option3: "4",
-    option4: "5",
-    correctAnswer: 1,
-  },
-]
+// Initialize with empty array - ready for real data
+const initialQuestions: Question[] = []
 
 export default function QuestionsPage() {
-  const [questions, setQuestions] = useState<Question[]>(sampleQuestions)
+  const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
@@ -117,17 +91,13 @@ export default function QuestionsPage() {
           if (lines[i].trim()) {
             const values = lines[i].split(",").map((v) => v.trim())
             const question: Question = {
-              id: Date.now().toString() + i,
-              category: values[0] || "",
+              id: Date.now() + i, // Use Date.now() for unique ID
+              question: values[0] || "",
               type: (values[1] as "mcq" | "truefalse") || "mcq",
-              question: values[2] || "",
-              questionEn: values[3] || undefined,
-              option1: values[4] || undefined,
-              option2: values[5] || undefined,
-              option3: values[6] || undefined,
-              option4: values[7] || undefined,
-              correctAnswer: values[1] === "truefalse" ? values[8] === "true" : Number.parseInt(values[8]) - 1,
-              image: values[9] || undefined,
+              options: values[2] ? values[2].split("|") : undefined, // Assuming options are comma-separated
+              correctAnswer: values[3] === "true" ? true : Number.parseInt(values[3]) - 1,
+              difficulty: values[4] as "easy" | "medium" | "hard" | undefined,
+              category: values[5] || undefined,
             }
             newQuestions.push(question)
           }
@@ -150,8 +120,8 @@ export default function QuestionsPage() {
   }
 
   const handleDownloadTemplate = () => {
-    const csvContent = `Category,Type,Question,Question EN,Option 1,Option 2,Option 3,Option 4,Correct Answer,Image
-جوالة ودليلات,mcq,من صفات الجوال؟,,الاتكال على الغير,التعاون,السلبية,التردد,2,`
+    const csvContent = `Question,Type,Options (comma-separated),Correct Answer,Difficulty,Category
+من صفات الجوال؟,mcq,الاتكال على الغير,التعاون,السلبية,التردد,2,`
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
@@ -160,25 +130,23 @@ export default function QuestionsPage() {
   }
 
   const handleAddQuestion = () => {
-    if (!newQuestion.category || !newQuestion.question) {
+    if (!newQuestion.question) {
       toast({
         title: "خطأ",
-        description: "يرجى ملء الحقول المطلوبة",
+        description: "يرجى ملء الحقل المطلوب",
         variant: "destructive",
       })
       return
     }
 
     const question: Question = {
-      id: Date.now().toString(),
-      category: newQuestion.category!,
-      type: newQuestion.type!,
+      id: Date.now(), // Use Date.now() for unique ID
       question: newQuestion.question!,
-      option1: newQuestion.option1,
-      option2: newQuestion.option2,
-      option3: newQuestion.option3,
-      option4: newQuestion.option4,
+      type: newQuestion.type!,
+      options: newQuestion.option1 ? [newQuestion.option1!] : undefined, // Assuming option1 is for mcq
       correctAnswer: newQuestion.correctAnswer!,
+      difficulty: newQuestion.difficulty,
+      category: newQuestion.category,
     }
 
     setQuestions((prev) => [...prev, question])
@@ -229,7 +197,7 @@ export default function QuestionsPage() {
   }
 
   const confirmBulkDelete = () => {
-    setQuestions((prev) => prev.filter((q) => !selectedQuestions.includes(q.id)))
+    setQuestions((prev) => prev.filter((q) => !selectedQuestions.includes(q.id.toString())))
     const deletedCount = selectedQuestions.length
     setSelectedQuestions([])
     setShowBulkDeleteModal(false)
@@ -278,11 +246,12 @@ export default function QuestionsPage() {
                       <SelectValue placeholder="اختر الفئة" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
+                      {/* Categories will be loaded from backend or defined here */}
+                      <SelectItem value="جوالة ودليلات">جوالة ودليلات</SelectItem>
+                      <SelectItem value="أشبال وزهرات">أشبال وزهرات</SelectItem>
+                      <SelectItem value="كشافة ومرشدات">كشافة ومرشدات</SelectItem>
+                      <SelectItem value="متقدم ورائدات">متقدم ورائدات</SelectItem>
+                      <SelectItem value="جوالة ودليلات">جوالة ودليلات</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -453,11 +422,12 @@ export default function QuestionsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">جميع الفئات</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
+                  {/* Categories will be loaded from backend or defined here */}
+                  <SelectItem value="جوالة ودليلات">جوالة ودليلات</SelectItem>
+                  <SelectItem value="أشبال وزهرات">أشبال وزهرات</SelectItem>
+                  <SelectItem value="كشافة ومرشدات">كشافة ومرشدات</SelectItem>
+                  <SelectItem value="متقدم ورائدات">متقدم ورائدات</SelectItem>
+                  <SelectItem value="جوالة ودليلات">جوالة ودليلات</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -496,7 +466,7 @@ export default function QuestionsPage() {
                       if (selectedQuestions.length === filteredQuestions.length) {
                         setSelectedQuestions([])
                       } else {
-                        setSelectedQuestions(filteredQuestions.map((q) => q.id))
+                        setSelectedQuestions(filteredQuestions.map((q) => q.id.toString()))
                       }
                     }}
                   >
@@ -521,14 +491,14 @@ export default function QuestionsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        if (selectedQuestions.includes(question.id)) {
-                          setSelectedQuestions(selectedQuestions.filter((id) => id !== question.id))
+                        if (selectedQuestions.includes(question.id.toString())) {
+                          setSelectedQuestions(selectedQuestions.filter((id) => id !== question.id.toString()))
                         } else {
-                          setSelectedQuestions([...selectedQuestions, question.id])
+                          setSelectedQuestions([...selectedQuestions, question.id.toString()])
                         }
                       }}
                     >
-                      {selectedQuestions.includes(question.id) ? (
+                      {selectedQuestions.includes(question.id.toString()) ? (
                         <CheckSquare className="h-4 w-4" />
                       ) : (
                         <Square className="h-4 w-4" />
@@ -594,12 +564,7 @@ export default function QuestionsPage() {
               {previewQuestion.type === "mcq" && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">الخيارات:</p>
-                  {[
-                    previewQuestion.option1,
-                    previewQuestion.option2,
-                    previewQuestion.option3,
-                    previewQuestion.option4,
-                  ].map((option, index) => (
+                  {previewQuestion.options?.map((option, index) => (
                     <div
                       key={index}
                       className={`p-2 rounded border ${index === previewQuestion.correctAnswer ? "bg-green-50 border-green-200" : "bg-gray-50"}`}

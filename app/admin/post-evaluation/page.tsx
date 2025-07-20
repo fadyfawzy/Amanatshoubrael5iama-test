@@ -43,45 +43,8 @@ interface EvaluationCriteria {
   weight: number
 }
 
-// Sample data
-const samplePendingEvaluations: PendingEvaluation[] = [
-  {
-    id: "1",
-    userCode: "1001",
-    userName: "أحمد محمد",
-    church: "العذراء",
-    category: "كشافة ومرشدات",
-    examName: "امتحان الكشافة - المستوى الأول",
-    examScore: 8,
-    examPercent: 80,
-    completionTime: "2025-07-17T14:30:00",
-    status: "pending",
-  },
-  {
-    id: "2",
-    userCode: "1002",
-    userName: "فاطمة علي",
-    church: "مار جرجس",
-    category: "أشبال وزهرات",
-    examName: "امتحان الأشبال - المستوى الثاني",
-    examScore: 7,
-    examPercent: 70,
-    completionTime: "2025-07-17T13:45:00",
-    status: "pending",
-  },
-  {
-    id: "3",
-    userCode: "1003",
-    userName: "محمد حسن",
-    church: "الأنبا أنطونيوس",
-    category: "جوالة ودليلات",
-    examName: "امتحان الجوالة - المستوى المتقدم",
-    examScore: 9,
-    examPercent: 90,
-    completionTime: "2025-07-17T12:20:00",
-    status: "completed",
-  },
-]
+// Initialize with empty array - ready for real evaluation data
+const initialEvaluations: PendingEvaluation[] = []
 
 const evaluationCriteria: EvaluationCriteria[] = [
   { id: "memorization", name: "حفظ الآيات والأدعية", maxScore: 100, weight: 40 },
@@ -93,7 +56,7 @@ const evaluationCriteria: EvaluationCriteria[] = [
 const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
 
 export default function PostEvaluationPage() {
-  const [pendingEvaluations, setPendingEvaluations] = useState<PendingEvaluation[]>(samplePendingEvaluations)
+  const [pendingEvaluations, setPendingEvaluations] = useState<PendingEvaluation[]>(initialEvaluations)
   const [selectedEvaluation, setSelectedEvaluation] = useState<PendingEvaluation | null>(null)
   const [showEvaluationModal, setShowEvaluationModal] = useState(false)
   const [categoryFilter, setCategoryFilter] = useState<string>("all")

@@ -75,116 +75,8 @@ interface ExamResult {
   alerts?: { time: string; type: string; details: string }[]
 }
 
-// Sample data
-const sampleResults: ExamResult[] = [
-  {
-    id: "1",
-    userCode: "1001",
-    userName: "أحمد محمد",
-    church: "العذراء",
-    category: "كشافة ومرشدات",
-    examScoreRaw: 8,
-    examScorePercent: 80,
-    memorizationScore: 85,
-    status: "locked",
-    completionTime: "2025-07-15T14:30:00",
-    evaluatedBy: "Fady",
-    durationTaken: "00:45:22",
-    attempts: 1,
-    lockReason: "Completed & Evaluated",
-    alertsCount: 0,
-    totalQuestions: 10,
-    passingThreshold: 70,
-    answers: [
-      { questionId: "q1", userAnswer: 0, correct: true },
-      { questionId: "q2", userAnswer: true, correct: true },
-      { questionId: "q3", userAnswer: 2, correct: false },
-    ],
-    alerts: [],
-  },
-  {
-    id: "2",
-    userCode: "1002",
-    userName: "فاطمة علي",
-    church: "مار جرجس",
-    category: "أشبال وزهرات",
-    examScoreRaw: 6,
-    examScorePercent: 60,
-    memorizationScore: 75,
-    status: "locked",
-    completionTime: "2025-07-14T10:15:00",
-    evaluatedBy: "Fady",
-    durationTaken: "00:52:10",
-    attempts: 1,
-    lockReason: "Completed & Evaluated",
-    alertsCount: 1,
-    totalQuestions: 10,
-    passingThreshold: 70,
-    alerts: [{ time: "2025-07-14T10:05:00", type: "tab_switch", details: "تبديل التبويب (1/3)" }],
-  },
-  {
-    id: "3",
-    userCode: "1003",
-    userName: "محمد حسن",
-    church: "الأنبا أنطونيوس",
-    category: "جوالة ودليلات",
-    examScoreRaw: 4,
-    examScorePercent: 40,
-    memorizationScore: null,
-    status: "pending",
-    completionTime: "2025-07-16T09:45:00",
-    evaluatedBy: null,
-    durationTaken: "00:38:45",
-    attempts: 1,
-    lockReason: null,
-    alertsCount: 0,
-    totalQuestions: 10,
-    passingThreshold: 70,
-  },
-  {
-    id: "4",
-    userCode: "1004",
-    userName: "نور أحمد",
-    church: "العذراء",
-    category: "متقدم ورائدات",
-    examScoreRaw: 0,
-    examScorePercent: 0,
-    memorizationScore: null,
-    status: "cheated",
-    completionTime: "2025-07-13T16:20:00",
-    evaluatedBy: null,
-    durationTaken: "00:12:33",
-    attempts: 1,
-    lockReason: "Anti-cheat triggered",
-    alertsCount: 3,
-    totalQuestions: 10,
-    passingThreshold: 70,
-    alerts: [
-      { time: "2025-07-13T16:15:00", type: "tab_switch", details: "تبديل التبويب (1/3)" },
-      { time: "2025-07-13T16:17:00", type: "tab_switch", details: "تبديل التبويب (2/3)" },
-      { time: "2025-07-13T16:20:00", type: "tab_switch", details: "تبديل التبويب (3/3) - تم إنهاء الامتحان" },
-    ],
-  },
-  {
-    id: "5",
-    userCode: "1005",
-    userName: "ماري",
-    church: "العذراء",
-    category: "جوالة ودليلات",
-    examScoreRaw: 9,
-    examScorePercent: 90,
-    memorizationScore: 95,
-    status: "locked",
-    completionTime: "2025-07-12T11:30:00",
-    evaluatedBy: "Fady",
-    durationTaken: "00:40:15",
-    attempts: 1,
-    lockReason: "Completed & Evaluated",
-    alertsCount: 0,
-    totalQuestions: 10,
-    passingThreshold: 70,
-  },
-]
+// Initialize with empty array - ready for real exam results
+const initialResults: ExamResult[] = []
 
 const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
 const churches = ["العذراء", "مار جرجس", "الأنبا أنطونيوس", "الملاك ميخائيل", "مارمرقس"]
@@ -195,8 +87,8 @@ const statusOptions = [
 ]
 
 export default function ResultsPage() {
-  const [results, setResults] = useState<ExamResult[]>(sampleResults)
-  const [filteredResults, setFilteredResults] = useState<ExamResult[]>(sampleResults)
+  const [results, setResults] = useState<ExamResult[]>(initialResults)
+  const [filteredResults, setFilteredResults] = useState<ExamResult[]>(initialResults)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedResult, setSelectedResult] = useState<ExamResult | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)

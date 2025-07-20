@@ -77,44 +77,12 @@ const initialStats: SystemStats = {
   lastUpdated: new Date().toISOString(),
 }
 
-const sampleLogs: SystemLog[] = [
-  {
-    id: "1",
-    action: "تصدير بيانات المستخدمين",
-    timestamp: "2025-07-17T14:30:00",
-    adminUser: "Fady",
-    details: "تم تصدير 245 مستخدم بنجاح",
-    status: "success",
-  },
-  {
-    id: "2",
-    action: "نسخ احتياطي للنظام",
-    timestamp: "2025-07-17T13:15:00",
-    adminUser: "Fady",
-    details: "تم إنشاء نسخة احتياطية كاملة",
-    status: "success",
-  },
-  {
-    id: "3",
-    action: "إعادة ضبط النتائج",
-    timestamp: "2025-07-16T16:45:00",
-    adminUser: "Fady",
-    details: "تم مسح جميع نتائج الامتحانات",
-    status: "warning",
-  },
-  {
-    id: "4",
-    action: "تغيير كلمة مرور المدير",
-    timestamp: "2025-07-16T10:20:00",
-    adminUser: "Fady",
-    details: "تم تحديث كلمة مرور المدير بنجاح",
-    status: "success",
-  },
-]
+// Initialize with empty array - ready for real system logs
+const initialLogs: SystemLog[] = []
 
 export default function SystemPage() {
   const [stats, setStats] = useState<SystemStats>(initialStats)
-  const [logs, setLogs] = useState<SystemLog[]>(sampleLogs)
+  const [logs, setLogs] = useState<SystemLog[]>(initialLogs)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [antiCheatEnabled, setAntiCheatEnabled] = useState(true)
 
@@ -199,11 +167,21 @@ export default function SystemPage() {
 
     setIsProcessing(true)
     try {
-      // Actually reset the data by clearing localStorage and resetting state
+      // Clear all localStorage data completely - including fake/sample data
       localStorage.removeItem("users")
       localStorage.removeItem("questions")
       localStorage.removeItem("results")
       localStorage.removeItem("alerts")
+      localStorage.removeItem("evaluations")
+      localStorage.removeItem("lockedExams")
+      
+      // Clear any other exam-related data
+      const allKeys = Object.keys(localStorage)
+      allKeys.forEach(key => {
+        if (key.startsWith("evaluation_") || key.startsWith("exam_") || key.startsWith("answer_")) {
+          localStorage.removeItem(key)
+        }
+      })
 
       // Reset all stats to zero
       setStats({
@@ -215,13 +193,13 @@ export default function SystemPage() {
         lastUpdated: new Date().toISOString(),
       })
 
-      // Clear logs except for this action
+      // Clear logs and add comprehensive reset log
       setLogs([])
-      addSystemLog("إعادة ضبط جميع البيانات", "تم مسح جميع البيانات من النظام بنجاح", "warning")
+      addSystemLog("إعادة ضبط شاملة للنظام", "تم مسح جميع البيانات التجريبية وإعادة ضبط النظام للحالة الأولية - جاهز لإدخال البيانات الحقيقية", "warning")
 
       toast({
-        title: "تمت إعادة ضبط البيانات بنجاح",
-        description: "تم مسح جميع البيانات من النظام",
+        title: "تم إعادة ضبط النظام بالكامل",
+        description: "تم مسح جميع البيانات التجريبية. النظام جاهز الآن لإدخال البيانات الحقيقية.",
       })
     } catch (error) {
       toast({
@@ -569,6 +547,8 @@ export default function SystemPage() {
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />
     }
   }
+
+
 
   return (
     <div className="p-6 space-y-6">
@@ -948,7 +928,7 @@ export default function SystemPage() {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
               <p className="text-red-600 font-medium">
-                هل أنت متأكد من أنك تريد إعادة ضبط جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه.
+                هل أنت متأكد من أنك تريد إعادة ضبط النظام بالكامل؟ سيتم مسح جميع البيانات التجريبية/الوهمية وإعادة النظام للحالة الأولية ليكون جاهزاً لإدخال البيانات الحقيقية. هذا الإجراء لا يمكن التراجع عنه.
               </p>
               <div className="space-y-2">
                 <Label htmlFor="admin-password-reset-all">كلمة مرور المدير للتأكيد</Label>

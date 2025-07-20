@@ -65,85 +65,8 @@ interface Alert {
   userAgent?: string
 }
 
-// Sample data
-const sampleAlerts: Alert[] = [
-  {
-    id: "1",
-    userCode: "1001",
-    userName: "أحمد محمد",
-    church: "العذراء",
-    category: "كشافة ومرشدات",
-    examName: "امتحان الكشافة - المستوى الأول",
-    alertType: "تبديل التبويبات",
-    timestamp: "2025-07-17T14:30:15",
-    alertCount: 2,
-    status: "active",
-    severity: "medium",
-    details: "تم رصد تبديل التبويب مرتين خلال الامتحان",
-    ipAddress: "192.168.1.100",
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-  },
-  {
-    id: "2",
-    userCode: "1002",
-    userName: "فاطمة علي",
-    church: "مار جرجس",
-    category: "أشبال وزهرات",
-    examName: "امتحان الأشبال - المستوى الثاني",
-    alertType: "تصغير النافذة",
-    timestamp: "2025-07-17T13:45:22",
-    alertCount: 1,
-    status: "reviewed",
-    severity: "low",
-    details: "تم تصغير نافذة المتصفح لمدة 5 ثوانٍ",
-    ipAddress: "192.168.1.101",
-  },
-  {
-    id: "3",
-    userCode: "1003",
-    userName: "محمد حسن",
-    church: "الأنبا أنطونيوس",
-    category: "جوالة ودليلات",
-    examName: "امتحان الجوالة - المستوى المتقدم",
-    alertType: "فتح من جهاز آخر",
-    timestamp: "2025-07-17T12:20:10",
-    alertCount: 1,
-    status: "active",
-    severity: "high",
-    details: "محاولة فتح الامتحان من عنوان IP مختلف",
-    ipAddress: "192.168.1.102",
-  },
-  {
-    id: "4",
-    userCode: "1004",
-    userName: "نور أحمد",
-    church: "العذراء",
-    category: "متقدم ورائدات",
-    examName: "امتحان المتقدم - الشارة الذهبية",
-    alertType: "تبديل التبويبات",
-    timestamp: "2025-07-17T11:15:33",
-    alertCount: 3,
-    status: "cleared",
-    severity: "high",
-    details: "تم إنهاء الامتحان تلقائياً بعد 3 محاولات تبديل",
-    ipAddress: "192.168.1.103",
-  },
-  {
-    id: "5",
-    userCode: "1005",
-    userName: "ماري",
-    church: "العذراء",
-    category: "جوالة ودليلات",
-    examName: "امتحان الجوالة - الشارة الفضية",
-    alertType: "خروج من صفحة الامتحان",
-    timestamp: "2025-07-17T10:30:45",
-    alertCount: 1,
-    status: "active",
-    severity: "medium",
-    details: "تم الخروج من صفحة الامتحان لمدة 10 ثوانٍ",
-    ipAddress: "192.168.1.104",
-  },
-]
+// Initialize with empty array - ready for real alerts
+const initialAlerts: Alert[] = []
 
 const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
 const churches = ["العذراء", "مار جرجس", "الأنبا أنطونيوس", "الملاك ميخائيل", "مارمرقس"]
@@ -163,8 +86,8 @@ const statusOptions = [
 ]
 
 export default function AlertsPage() {
-  const [alerts, setAlerts] = useState<Alert[]>(sampleAlerts)
-  const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>(sampleAlerts)
+  const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
+  const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>(initialAlerts)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedAlerts, setSelectedAlerts] = useState<string[]>([])
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)

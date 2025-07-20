@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -46,6 +46,24 @@ const initialQuestions: Question[] = []
 
 export default function QuestionsPage() {
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
+
+  // Load questions from localStorage on component mount
+  useEffect(() => {
+    const savedQuestions = localStorage.getItem("questions")
+    if (savedQuestions) {
+      try {
+        const parsedQuestions = JSON.parse(savedQuestions)
+        setQuestions(parsedQuestions)
+      } catch (error) {
+        console.error("Error loading questions from localStorage:", error)
+      }
+    }
+  }, [])
+
+  // Save questions to localStorage whenever questions state changes
+  useEffect(() => {
+    localStorage.setItem("questions", JSON.stringify(questions))
+  }, [questions])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
@@ -90,16 +108,29 @@ export default function QuestionsPage() {
         for (let i = 1; i < lines.length; i++) {
           if (lines[i].trim()) {
             const values = lines[i].split(",").map((v) => v.trim())
-            const question: Question = {
-              id: Date.now() + i, // Use Date.now() for unique ID
-              question: values[0] || "",
-              type: (values[1] as "mcq" | "truefalse") || "mcq",
-              options: values[2] ? values[2].split("|") : undefined, // Assuming options are comma-separated
-              correctAnswer: values[3] === "true" ? true : Number.parseInt(values[3]) - 1,
-              difficulty: values[4] as "easy" | "medium" | "hard" | undefined,
-              category: values[5] || undefined,
+            if (values.length >= 4) {
+              const questionType = (values[1] as "mcq" | "truefalse") || "mcq"
+              let options = undefined
+              let correctAnswer: number | boolean = 0
+              
+              if (questionType === "mcq" && values[2]) {
+                options = values[2].split("|").map(opt => opt.trim())
+                correctAnswer = parseInt(values[3]) - 1 // Convert to 0-based index
+              } else if (questionType === "truefalse") {
+                correctAnswer = values[3].toLowerCase() === "true"
+              }
+              
+              const question: Question = {
+                id: Date.now() + i,
+                question: values[0] || "",
+                type: questionType,
+                options: options,
+                correctAnswer: correctAnswer,
+                difficulty: values[4] as "easy" | "medium" | "hard" | undefined,
+                category: values[5] || undefined,
+              }
+              newQuestions.push(question)
             }
-            newQuestions.push(question)
           }
         }
 
@@ -120,8 +151,9 @@ export default function QuestionsPage() {
   }
 
   const handleDownloadTemplate = () => {
-    const csvContent = `Question,Type,Options (comma-separated),Correct Answer,Difficulty,Category
-من صفات الجوال؟,mcq,الاتكال على الغير,التعاون,السلبية,التردد,2,`
+    const csvContent = `Question,Type,Options (pipe-separated),Correct Answer,Difficulty,Category
+من صفات الكشاف الجيد؟,mcq,الصدق|الأمانة|التعاون|جميع ما سبق,4,easy,أساسيات الكشفية
+هل الكشافة حركة تربوية؟,truefalse,,true,easy,أساسيات الكشفية`
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
@@ -139,12 +171,39 @@ export default function QuestionsPage() {
       return
     }
 
+    let options = undefined
+    let correctAnswer: number | boolean = 0
+
+    if (newQuestion.type === "mcq") {
+      // Collect all non-empty options
+      const allOptions = [
+        newQuestion.option1,
+        newQuestion.option2,
+        newQuestion.option3,
+        newQuestion.option4
+      ].filter(option => option && option.trim() !== "")
+      
+      if (allOptions.length < 2) {
+        toast({
+          title: "خطأ",
+          description: "يجب إدخال خيارين على الأقل للأسئلة متعددة الخيارات",
+          variant: "destructive",
+        })
+        return
+      }
+      
+      options = allOptions
+      correctAnswer = parseInt(newQuestion.correctAnswer as string) - 1 // Convert to 0-based index
+    } else if (newQuestion.type === "truefalse") {
+      correctAnswer = newQuestion.correctAnswer === "true" || newQuestion.correctAnswer === true
+    }
+
     const question: Question = {
-      id: Date.now(), // Use Date.now() for unique ID
+      id: Date.now(),
       question: newQuestion.question!,
       type: newQuestion.type!,
-      options: newQuestion.option1 ? [newQuestion.option1!] : undefined, // Assuming option1 is for mcq
-      correctAnswer: newQuestion.correctAnswer!,
+      options: options,
+      correctAnswer: correctAnswer,
       difficulty: newQuestion.difficulty,
       category: newQuestion.category,
     }

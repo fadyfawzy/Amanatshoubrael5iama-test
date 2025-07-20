@@ -31,23 +31,39 @@ export default function LoginPage() {
       if (userCode === "Fady" && password === "F@dy1313") {
         localStorage.setItem("userRole", "admin")
         localStorage.setItem("userCode", userCode)
+        localStorage.setItem("userName", "Admin")
         router.push("/admin")
         toast({
           title: "تم تسجيل الدخول بنجاح",
           description: "مرحباً بك في لوحة التحكم",
         })
       } else {
-        // Check regular user credentials (simulate)
-        if (userCode && password) {
-          localStorage.setItem("userRole", "user")
-          localStorage.setItem("userCode", userCode)
-          router.push("/exam")
-          toast({
-            title: "تم تسجيل الدخول بنجاح",
-            description: "مرحباً بك في منصة الامتحانات",
-          })
+        // Check regular user credentials against stored users
+        const storedUsers = localStorage.getItem("users")
+        if (storedUsers) {
+          try {
+            const users = JSON.parse(storedUsers)
+            const user = users.find((u: any) => u.code === userCode && u.password === password)
+            
+            if (user) {
+              localStorage.setItem("userRole", "user")
+              localStorage.setItem("userCode", userCode)
+              localStorage.setItem("userName", user.name)
+              localStorage.setItem("userChurch", user.church)
+              localStorage.setItem("userCategory", user.category)
+              router.push("/exam")
+              toast({
+                title: "تم تسجيل الدخول بنجاح",
+                description: `مرحباً ${user.name}`,
+              })
+            } else {
+              throw new Error("كود المستخدم أو كلمة المرور غير صحيحة")
+            }
+          } catch (error) {
+            throw new Error("خطأ في قراءة بيانات المستخدمين")
+          }
         } else {
-          throw new Error("بيانات غير صحيحة")
+          throw new Error("لا توجد بيانات مستخدمين في النظام")
         }
       }
     } catch (error) {

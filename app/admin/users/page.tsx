@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -37,6 +37,24 @@ const categories = ["براعم وذو الهمم", "أشبال وزهرات", "
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
+
+  // Load users from localStorage on component mount
+  useEffect(() => {
+    const savedUsers = localStorage.getItem("users")
+    if (savedUsers) {
+      try {
+        const parsedUsers = JSON.parse(savedUsers)
+        setUsers(parsedUsers)
+      } catch (error) {
+        console.error("Error loading users from localStorage:", error)
+      }
+    }
+  }, [])
+
+  // Save users to localStorage whenever users state changes
+  useEffect(() => {
+    localStorage.setItem("users", JSON.stringify(users))
+  }, [users])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)

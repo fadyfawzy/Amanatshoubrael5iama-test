@@ -19,7 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface User {
   code: string
@@ -33,38 +35,8 @@ interface User {
 
 const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
 
-const sampleUsers: User[] = [
-  {
-    code: "1001",
-    name: "أحمد محمد",
-    church: "العذراء",
-    category: "كشافة ومرشدات",
-    password: "12345678",
-    email: "ahmed@example.com",
-    status: "active",
-  },
-  {
-    code: "1002",
-    name: "فاطمة علي",
-    church: "مار جرجس",
-    category: "أشبال وزهرات",
-    password: "87654321",
-    email: "fatima@example.com",
-    status: "active",
-  },
-  {
-    code: "1003",
-    name: "محمد حسن",
-    church: "الأنبا أنطونيوس",
-    category: "جوالة ودليلات",
-    password: "11223344",
-    email: "mohamed@example.com",
-    status: "inactive",
-  },
-]
-
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(sampleUsers)
+  const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -78,6 +50,11 @@ export default function UsersPage() {
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -103,6 +80,10 @@ export default function UsersPage() {
         for (let i = 1; i < lines.length; i++) {
           if (lines[i].trim()) {
             const values = lines[i].split(",").map((v) => v.trim())
+            if (values.length < 6) {
+              console.warn("Skipping line due to insufficient values:", lines[i])
+              continue
+            }
             const user: User = {
               code: values[0] || "",
               name: values[1] || "",
@@ -185,12 +166,60 @@ export default function UsersPage() {
     })
   }
 
-  const handleDeleteUser = (code: string) => {
-    setUsers((prev) => prev.filter((user) => user.code !== code))
+  const handleDeleteUser = (user: User) => {
+    setUserToDelete(user)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteUser = () => {
+    if (!userToDelete) return
+
+    setUsers((prev) => prev.filter((user) => user.code !== userToDelete.code))
+    setShowDeleteModal(false)
+    setUserToDelete(null)
     toast({
       title: "تم حذف المستخدم",
-      description: "تم حذف المستخدم من النظام",
+      description: `تم حذف ${userToDelete.name} من النظام`,
     })
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedUsers.length === 0) {
+      toast({
+        title: "لم يتم تحديد مستخدمين",
+        description: "يرجى تحديد المستخدمين المراد حذفهم",
+        variant: "destructive",
+      })
+      return
+    }
+    setShowBulkDeleteModal(true)
+  }
+
+  const confirmBulkDelete = () => {
+    setUsers((prev) => prev.filter((user) => !selectedUsers.includes(user.code)))
+    const deletedCount = selectedUsers.length
+    setSelectedUsers([])
+    setShowBulkDeleteModal(false)
+    toast({
+      title: "تم حذف المستخدمين",
+      description: `تم حذف ${deletedCount} مستخدم من النظام`,
+    })
+  }
+
+  const handleSelectUser = (userCode: string, checked: boolean) => {
+    if (checked) {
+      setSelectedUsers([...selectedUsers, userCode])
+    } else {
+      setSelectedUsers(selectedUsers.filter((code) => code !== userCode))
+    }
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedUsers(filteredUsers.map((user) => user.code))
+    } else {
+      setSelectedUsers([])
+    }
   }
 
   return (
@@ -317,6 +346,12 @@ export default function UsersPage() {
           <Download className="h-4 w-4 ml-2" />
           تصدير المستخدمين
         </Button>
+        {selectedUsers.length > 0 && (
+          <Button variant="destructive" onClick={handleBulkDelete} className="flex items-center gap-2">
+            <Trash2 className="h-4 w-4" />
+            حذف المحدد ({selectedUsers.length})
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -369,6 +404,12 @@ export default function UsersPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
                 <TableHead>الكود</TableHead>
                 <TableHead>الاسم</TableHead>
                 <TableHead>الكنيسة</TableHead>
@@ -381,6 +422,12 @@ export default function UsersPage() {
             <TableBody>
               {filteredUsers.map((user) => (
                 <TableRow key={user.code}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedUsers.includes(user.code)}
+                      onCheckedChange={(checked) => handleSelectUser(user.code, checked === true)}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{user.code}</TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.church}</TableCell>
@@ -403,7 +450,7 @@ export default function UsersPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteUser(user.code)}
+                        onClick={() => handleDeleteUser(user)}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -416,6 +463,50 @@ export default function UsersPage() {
           </Table>
         </CardContent>
       </Card>
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تأكيد الحذف</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.
+              {userToDelete && (
+                <div className="mt-2 p-2 bg-gray-50 rounded">
+                  <strong>المستخدم:</strong> {userToDelete.name} ({userToDelete.code})
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+              إلغاء
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteUser}>
+              تأكيد الحذف
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <Dialog open={showBulkDeleteModal} onOpenChange={setShowBulkDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تأكيد الحذف المتعدد</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد من حذف {selectedUsers.length} مستخدم؟ لا يمكن التراجع عن هذا الإجراء.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkDeleteModal(false)}>
+              إلغاء
+            </Button>
+            <Button variant="destructive" onClick={confirmBulkDelete}>
+              تأكيد الحذف
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

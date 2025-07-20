@@ -27,6 +27,7 @@ import {
   XCircle,
   Clock,
   Shield,
+  Trash2,
 } from "lucide-react"
 import {
   Dialog,
@@ -172,6 +173,8 @@ export default function AlertsPage() {
   const [bulkAction, setBulkAction] = useState<"review" | "clear" | "lock" | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [alertToDelete, setAlertToDelete] = useState<Alert | null>(null)
 
   // Filters
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
@@ -423,6 +426,42 @@ export default function AlertsPage() {
     if (!statusOption) return null
 
     return <Badge className={statusOption.color}>{statusOption.label}</Badge>
+  }
+
+  const handleDeleteAlert = (alert: Alert) => {
+    setAlertToDelete(alert)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteAlert = () => {
+    if (!alertToDelete) return
+
+    setAlerts((prev) => prev.filter((a) => a.id !== alertToDelete.id))
+    setShowDeleteModal(false)
+    setAlertToDelete(null)
+    toast({
+      title: "تم حذف التنبيه",
+      description: "تم حذف التنبيه من النظام",
+    })
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedAlerts.length === 0) {
+      toast({
+        title: "لم يتم تحديد تنبيهات",
+        description: "يرجى تحديد التنبيهات المراد حذفها",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setAlerts((prev) => prev.filter((alert) => !selectedAlerts.includes(alert.id)))
+    const deletedCount = selectedAlerts.length
+    setSelectedAlerts([])
+    toast({
+      title: "تم حذف التنبيهات",
+      description: `تم حذف ${deletedCount} تنبيه من النظام`,
+    })
   }
 
   // Statistics
@@ -731,6 +770,10 @@ export default function AlertsPage() {
                   <Lock className="h-4 w-4 ml-1" />
                   قفل الامتحان
                 </Button>
+                <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                  <Trash2 className="h-4 w-4 ml-1" />
+                  حذف التنبيهات
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -846,6 +889,13 @@ export default function AlertsPage() {
                             <DropdownMenuItem className="text-red-600 focus:text-red-600">
                               <Lock className="ml-2 h-4 w-4" />
                               قفل الامتحان
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteAlert(alert)}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="ml-2 h-4 w-4" />
+                              حذف التنبيه
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -992,6 +1042,22 @@ export default function AlertsPage() {
               إلغاء
             </Button>
             <Button onClick={confirmBulkAction}>تأكيد الإجراء</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تأكيد الحذف</DialogTitle>
+            <DialogDescription>هل أنت متأكد من رغبتك في حذف هذا التنبيه؟</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
+              إلغاء
+            </Button>
+            <Button onClick={confirmDeleteAlert}>تأكيد الحذف</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

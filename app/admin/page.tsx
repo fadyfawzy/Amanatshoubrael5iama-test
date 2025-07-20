@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, HelpCircle, FileText, AlertTriangle } from "lucide-react"
+import { Users, HelpCircle, FileText, AlertTriangle, Clock } from "lucide-react"
 
 export default function AdminDashboard() {
   const stats = [
@@ -27,8 +27,15 @@ export default function AdminDashboard() {
       color: "text-purple-600",
     },
     {
-      title: "تنبيهات اليوم",
+      title: "في انتظار التقييم",
       value: "12",
+      description: "تحتاج تقييم القائد",
+      icon: Clock,
+      color: "text-orange-600",
+    },
+    {
+      title: "تنبيهات اليوم",
+      value: "5",
       description: "تنبيه مكافحة غش",
       icon: AlertTriangle,
       color: "text-red-600",

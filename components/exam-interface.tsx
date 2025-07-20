@@ -142,9 +142,28 @@ export function ExamInterface() {
             <CardTitle>تم إكمال الامتحان</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p>تم حفظ إجاباتك بنجاح</p>
-            <p className="text-sm text-muted-foreground">سيتم عرض النتائج بعد التقييم من القائد</p>
-            <Button onClick={() => setShowEvaluation(true)}>متابعة للتقييم</Button>
+            <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Clock className="h-8 w-8 text-blue-600" />
+            </div>
+            <p className="text-lg font-medium">تم تسجيل إجاباتك</p>
+            <p className="text-sm text-muted-foreground">
+              يرجى انتظار تقييم القائد. سيتم إشعارك بالنتيجة النهائية بعد اكتمال التقييم.
+            </p>
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-600">
+                <strong>ملاحظة:</strong> لا يمكن إعادة فتح هذا الامتحان مرة أخرى
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                localStorage.removeItem("userRole")
+                localStorage.removeItem("userCode")
+                window.location.href = "/"
+              }}
+              className="w-full mt-4"
+            >
+              العودة للصفحة الرئيسية
+            </Button>
           </CardContent>
         </Card>
       </div>

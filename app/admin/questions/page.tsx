@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Upload, Download, Plus, Trash2, Edit, Search, Eye } from "lucide-react"
+import { Upload, Download, Plus, Trash2, Edit, Search, Eye, CheckSquare, Square } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -89,6 +89,11 @@ export default function QuestionsPage() {
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
+  const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null)
+  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([])
 
   const filteredQuestions = questions.filter((question) => {
     const matchesSearch = question.question.toLowerCase().includes(searchTerm.toLowerCase())
@@ -191,6 +196,46 @@ export default function QuestionsPage() {
     toast({
       title: "تم إضافة السؤال بنجاح",
       description: "تم إضافة السؤال للنظام",
+    })
+  }
+
+  const handleDeleteQuestion = (question: Question) => {
+    setQuestionToDelete(question)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteQuestion = () => {
+    if (!questionToDelete) return
+
+    setQuestions((prev) => prev.filter((q) => q.id !== questionToDelete.id))
+    setShowDeleteModal(false)
+    setQuestionToDelete(null)
+    toast({
+      title: "تم حذف السؤال",
+      description: "تم حذف السؤال من النظام",
+    })
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedQuestions.length === 0) {
+      toast({
+        title: "لم يتم تحديد أسئلة",
+        description: "يرجى تحديد الأسئلة المراد حذفها",
+        variant: "destructive",
+      })
+      return
+    }
+    setShowBulkDeleteModal(true)
+  }
+
+  const confirmBulkDelete = () => {
+    setQuestions((prev) => prev.filter((q) => !selectedQuestions.includes(q.id)))
+    const deletedCount = selectedQuestions.length
+    setSelectedQuestions([])
+    setShowBulkDeleteModal(false)
+    toast({
+      title: "تم حذف الأسئلة",
+      description: `تم حذف ${deletedCount} سؤال من النظام`,
     })
   }
 
@@ -368,6 +413,16 @@ export default function QuestionsPage() {
           <Download className="h-4 w-4 ml-2" />
           تحميل القالب
         </Button>
+
+        <Button
+          variant="destructive"
+          onClick={handleBulkDelete}
+          disabled={questions.length === 0}
+          className="bg-red-500 hover:bg-red-600"
+        >
+          <Trash2 className="h-4 w-4 ml-2" />
+          حذف المحدد
+        </Button>
       </div>
 
       {/* Filters */}
@@ -433,6 +488,25 @@ export default function QuestionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[20px]">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (selectedQuestions.length === filteredQuestions.length) {
+                        setSelectedQuestions([])
+                      } else {
+                        setSelectedQuestions(filteredQuestions.map((q) => q.id))
+                      }
+                    }}
+                  >
+                    {selectedQuestions.length === filteredQuestions.length ? (
+                      <CheckSquare className="h-4 w-4" />
+                    ) : (
+                      <Square className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TableHead>
                 <TableHead>السؤال</TableHead>
                 <TableHead>الفئة</TableHead>
                 <TableHead>النوع</TableHead>
@@ -442,6 +516,25 @@ export default function QuestionsPage() {
             <TableBody>
               {filteredQuestions.map((question) => (
                 <TableRow key={question.id}>
+                  <TableCell className="w-[20px]">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (selectedQuestions.includes(question.id)) {
+                          setSelectedQuestions(selectedQuestions.filter((id) => id !== question.id))
+                        } else {
+                          setSelectedQuestions([...selectedQuestions, question.id])
+                        }
+                      }}
+                    >
+                      {selectedQuestions.includes(question.id) ? (
+                        <CheckSquare className="h-4 w-4" />
+                      ) : (
+                        <Square className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableCell>
                   <TableCell className="max-w-md">
                     <p className="truncate">{question.question}</p>
                   </TableCell>
@@ -463,7 +556,12 @@ export default function QuestionsPage() {
                       <Button variant="ghost" size="sm">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => handleDeleteQuestion(question)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -527,6 +625,50 @@ export default function QuestionsPage() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>تأكيد الحذف</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد أنك تريد حذف هذا السؤال؟ لا يمكنك التراجع عن هذا الإجراء.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Button variant="destructive" onClick={confirmDeleteQuestion} className="col-span-2">
+                تأكيد الحذف
+              </Button>
+              <Button variant="secondary" onClick={() => setShowDeleteModal(false)} className="col-span-2">
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <Dialog open={showBulkDeleteModal} onOpenChange={setShowBulkDeleteModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>تأكيد الحذف الجماعي</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد أنك تريد حذف هذه الأسئلة؟ لا يمكنك التراجع عن هذا الإجراء.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Button variant="destructive" onClick={confirmBulkDelete} className="col-span-2">
+                تأكيد الحذف
+              </Button>
+              <Button variant="secondary" onClick={() => setShowBulkDeleteModal(false)} className="col-span-2">
+                إلغاء
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

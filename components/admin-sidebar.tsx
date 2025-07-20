@@ -16,6 +16,7 @@ import {
   Home,
   ChevronLeft,
   ChevronRight,
+  User,
 } from "lucide-react"
 
 const menuItems = [
@@ -50,11 +51,18 @@ const menuItems = [
     tooltip: "عرض وإدارة نتائج الامتحانات",
   },
   {
+    title: "تقييم ما بعد الامتحان",
+    url: "/admin/post-evaluation",
+    icon: User,
+    tooltip: "تقييم المحفوظات والسلوك",
+    badge: 2, // Number of pending evaluations
+  },
+  {
     title: "الإشعارات / مكافحة الغش",
     url: "/admin/alerts",
     icon: AlertTriangle,
     tooltip: "مراقبة محاولات الغش والتنبيهات",
-    badge: 5, // Example alert count
+    badge: 5,
   },
   {
     title: "النظام",

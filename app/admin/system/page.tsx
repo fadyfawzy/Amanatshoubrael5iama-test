@@ -199,10 +199,13 @@ export default function SystemPage() {
 
     setIsProcessing(true)
     try {
-      // Simulate reset process
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Actually reset the data by clearing localStorage and resetting state
+      localStorage.removeItem("users")
+      localStorage.removeItem("questions")
+      localStorage.removeItem("results")
+      localStorage.removeItem("alerts")
 
-      // Reset stats
+      // Reset all stats to zero
       setStats({
         totalUsers: 0,
         totalExams: 0,
@@ -212,16 +215,18 @@ export default function SystemPage() {
         lastUpdated: new Date().toISOString(),
       })
 
-      addSystemLog("إعادة ضبط جميع البيانات", "تم مسح جميع البيانات من النظام", "warning")
+      // Clear logs except for this action
+      setLogs([])
+      addSystemLog("إعادة ضبط جميع البيانات", "تم مسح جميع البيانات من النظام بنجاح", "warning")
 
       toast({
-        title: "تم إعادة ضبط البيانات",
-        description: "تم مسح جميع البيانات من النظام بنجاح",
+        title: "تمت إعادة ضبط البيانات بنجاح",
+        description: "تم مسح جميع البيانات من النظام",
       })
     } catch (error) {
       toast({
-        title: "خطأ في إعادة الضبط",
-        description: "حدث خطأ أثناء إعادة ضبط البيانات",
+        title: "حدث خطأ أثناء إعادة الضبط. يرجى المحاولة مرة أخرى",
+        description: "فشل في إعادة ضبط البيانات",
         variant: "destructive",
       })
     } finally {

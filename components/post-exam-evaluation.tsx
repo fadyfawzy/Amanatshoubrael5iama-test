@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,8 +20,19 @@ export function PostExamEvaluation({ answers, questions }: PostExamEvaluationPro
   const [leaderPassword, setLeaderPassword] = useState("")
   const [isLocked, setIsLocked] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [examAlreadyLocked, setExamAlreadyLocked] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+
+  // Check if exam is already locked on component mount
+  useEffect(() => {
+    const userCode = localStorage.getItem("userCode")
+    const lockedExams = JSON.parse(localStorage.getItem("lockedExams") || "[]")
+
+    if (lockedExams.includes(userCode)) {
+      setExamAlreadyLocked(true)
+    }
+  }, [])
 
   // Calculate automatic score
   const calculateScore = () => {
@@ -37,6 +48,37 @@ export function PostExamEvaluation({ answers, questions }: PostExamEvaluationPro
 
   const automaticScore = calculateScore()
 
+  // If exam is already locked, show locked message
+  if (examAlreadyLocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mb-2">
+              <Lock className="h-6 w-6 text-red-600" />
+            </div>
+            <CardTitle className="text-red-700">امتحان مقفل</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-red-600">
+              لقد أكملت هذا الامتحان بالفعل ولا يمكن فتحه مرة أخرى. يرجى التواصل مع القائد إذا احتجت مراجعة.
+            </p>
+            <Button
+              onClick={() => {
+                localStorage.removeItem("userRole")
+                localStorage.removeItem("userCode")
+                router.push("/")
+              }}
+              className="w-full"
+            >
+              العودة للصفحة الرئيسية
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   const handleSaveEvaluation = async () => {
     if (!leaderPassword) {
       toast({
@@ -47,19 +89,39 @@ export function PostExamEvaluation({ answers, questions }: PostExamEvaluationPro
       return
     }
 
+    // Validate leader password
+    const validPasswords = ["Leader123", "القائد123", "F@dy1313"]
+    if (!validPasswords.includes(leaderPassword)) {
+      toast({
+        title: "كلمة مرور خاطئة",
+        description: "يرجى إدخال كلمة مرور القائد الصحيحة",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      // Simulate API call to save evaluation
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Here you would typically save to database:
-      // - User code
-      // - Automatic score
-      // - Evaluation score
-      // - Leader password (hashed)
-      // - Timestamp
-      // - Lock the exam
+      // Lock the exam for this user
+      const userCode = localStorage.getItem("userCode")
+      const lockedExams = JSON.parse(localStorage.getItem("lockedExams") || "[]")
+      lockedExams.push(userCode)
+      localStorage.setItem("lockedExams", JSON.stringify(lockedExams))
+
+      // Save evaluation data
+      const evaluationData = {
+        userCode,
+        automaticScore: calculateScore(),
+        evaluationScore: evaluationScore[0],
+        leaderPassword: leaderPassword, // In real app, this would be hashed
+        timestamp: new Date().toISOString(),
+        locked: true,
+      }
+
+      localStorage.setItem(`evaluation_${userCode}`, JSON.stringify(evaluationData))
 
       setIsLocked(true)
       toast({

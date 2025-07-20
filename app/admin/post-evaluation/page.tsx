@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Clock, User, CheckCircle, Lock, Eye, Save } from "lucide-react"
+import { Clock, User, CheckCircle, Lock, Eye, Save, Settings, Trash2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -104,6 +104,9 @@ export default function PostEvaluationPage() {
   const [leaderPassword, setLeaderPassword] = useState("")
   const [evaluationNotes, setEvaluationNotes] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showLeaderPasswordConfig, setShowLeaderPasswordConfig] = useState(false)
+  const [newLeaderPassword, setNewLeaderPassword] = useState("")
+  const [leaderPasswords, setLeaderPasswords] = useState(["Leader123", "القائد123", "F@dy1313"])
 
   const { toast } = useToast()
 
@@ -122,9 +125,51 @@ export default function PostEvaluationPage() {
   }
 
   const validateLeaderPassword = (password: string): boolean => {
-    // In a real app, this would check against a database of leader passwords
-    const validPasswords = ["Leader123", "القائد123", "F@dy1313"]
-    return validPasswords.includes(password)
+    return leaderPasswords.includes(password)
+  }
+
+  const addLeaderPassword = () => {
+    if (!newLeaderPassword.trim()) {
+      toast({
+        title: "خطأ",
+        description: "يرجى إدخال كلمة مرور صالحة",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (leaderPasswords.includes(newLeaderPassword)) {
+      toast({
+        title: "كلمة المرور موجودة",
+        description: "هذه كلمة المرور موجودة بالفعل",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setLeaderPasswords([...leaderPasswords, newLeaderPassword])
+    setNewLeaderPassword("")
+    toast({
+      title: "تم إضافة كلمة المرور",
+      description: "تم إضافة كلمة مرور قائد جديدة",
+    })
+  }
+
+  const removeLeaderPassword = (password: string) => {
+    if (leaderPasswords.length === 1) {
+      toast({
+        title: "لا يمكن الحذف",
+        description: "يجب الاحتفاظ بكلمة مرور واحدة على الأقل",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setLeaderPasswords(leaderPasswords.filter(p => p !== password))
+    toast({
+      title: "تم حذف كلمة المرور",
+      description: "تم حذف كلمة مرور القائد",
+    })
   }
 
   const calculateFinalScore = (): number => {
@@ -184,6 +229,13 @@ export default function PostEvaluationPage() {
           return evaluation
         }),
       )
+
+      // Lock the exam for this user
+      const lockedExams = JSON.parse(localStorage.getItem("lockedExams") || "[]")
+      if (!lockedExams.includes(selectedEvaluation.userCode)) {
+        lockedExams.push(selectedEvaluation.userCode)
+        localStorage.setItem("lockedExams", JSON.stringify(lockedExams))
+      }
 
       toast({
         title: "تم حفظ التقييم بنجاح",
@@ -248,6 +300,14 @@ export default function PostEvaluationPage() {
           <p className="text-muted-foreground">تقييم المحفوظات والسلوك للطلاب</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowLeaderPasswordConfig(true)}
+            className="ml-2"
+          >
+            <Settings className="h-4 w-4 ml-1" />
+            إعدادات كلمات مرور القادة
+          </Button>
           <img src="/logo.png" alt="الشعار" className="h-12 w-12" />
         </div>
       </div>
@@ -546,6 +606,62 @@ export default function PostEvaluationPage() {
                 )}
               </Button>
             )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Leader Password Configuration Modal */}
+      <Dialog open={showLeaderPasswordConfig} onOpenChange={setShowLeaderPasswordConfig}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>إعدادات كلمات مرور القادة</DialogTitle>
+            <DialogDescription>
+              إدارة كلمات المرور المخولة للقادة لإجراء التقييمات
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Add new password */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="كلمة مرور جديدة للقائد"
+                value={newLeaderPassword}
+                onChange={(e) => setNewLeaderPassword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addLeaderPassword()}
+              />
+              <Button onClick={addLeaderPassword}>إضافة</Button>
+            </div>
+
+            {/* Current passwords */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">كلمات المرور الحالية:</Label>
+              {leaderPasswords.map((password, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                  <span className="font-mono text-sm">***{password.slice(-3)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">{password}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeLeaderPassword(password)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+              <strong>ملاحظة:</strong> هذه كلمات المرور مطلوبة للقادة لإجراء التقييمات وقفل الامتحانات
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLeaderPasswordConfig(false)}>
+              إغلاق
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

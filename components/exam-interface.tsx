@@ -145,9 +145,12 @@ export function ExamInterface() {
             <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
               <Clock className="h-8 w-8 text-blue-600" />
             </div>
-            <p className="text-lg font-medium">تم تسجيل إجاباتك</p>
+            <p className="text-lg font-medium">تم تسجيل إجاباتك بنجاح</p>
             <p className="text-sm text-muted-foreground">
-              يرجى انتظار تقييم القائد. سيتم إشعارك بالنتيجة النهائية بعد اكتمال التقييم.
+              تم تسجيل إجاباتك. يرجى انتظار تقييم القائد.
+            </p>
+            <p className="text-xs text-gray-500 mt-2">
+              سيتم عرض النتيجة النهائية بعد اكتمال تقييم المحفوظات والسلوك من قبل القائد المسؤول.
             </p>
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-600">

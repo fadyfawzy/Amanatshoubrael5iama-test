@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
+import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
 import { Upload, Download, Plus, Trash2, Edit, Search, Eye, CheckSquare, Square } from "lucide-react"
 import {
@@ -20,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog"
 
 interface Question {
@@ -94,6 +97,10 @@ export default function QuestionsPage() {
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null)
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([])
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [replaceExistingData, setReplaceExistingData] = useState(false)
+  const [importProgress, setImportProgress] = useState(0)
+  const [isImporting, setIsImporting] = useState(false)
 
   const filteredQuestions = questions.filter((question) => {
     const matchesSearch = question.question.toLowerCase().includes(searchTerm.toLowerCase())
@@ -106,18 +113,57 @@ export default function QuestionsPage() {
     const file = event.target.files?.[0]
     if (!file) return
 
+    setShowImportModal(true)
+    setIsImporting(true)
+    setImportProgress(0)
+
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
-        const csv = e.target?.result as string
-        const lines = csv.split("\n")
+        let csv = e.target?.result as string
+        
+        // Remove BOM if present for better Unicode support
+        if (csv.charCodeAt(0) === 0xFEFF) {
+          csv = csv.slice(1)
+        }
+
+        const lines = csv.split("\n").filter(line => line.trim())
+        const headers = lines[0].split(",").map((h) => h.trim().replace(/"/g, ''))
 
         const newQuestions: Question[] = []
+        const errors: string[] = []
+        let successCount = 0
+        let skippedCount = 0
+
         for (let i = 1; i < lines.length; i++) {
+          setImportProgress((i / lines.length) * 100)
+          
           if (lines[i].trim()) {
-            const values = lines[i].split(",").map((v) => v.trim())
+            // Better CSV parsing to handle quoted fields with Arabic text
+            const values = lines[i].split(',').map((v) => v.trim().replace(/^"|"$/g, ''))
+            
+            if (values.length < 9) {
+              errors.push(`السطر ${i + 1}: بيانات ناقصة (${values.length} من 9 حقول مطلوبة)`)
+              skippedCount++
+              continue
+            }
+
+            // Validate category
+            if (!categories.includes(values[0])) {
+              errors.push(`السطر ${i + 1}: فئة غير صالحة "${values[0]}"`)
+              skippedCount++
+              continue
+            }
+
+            // Validate question type
+            if (!["mcq", "truefalse"].includes(values[1])) {
+              errors.push(`السطر ${i + 1}: نوع سؤال غير صالح "${values[1]}"`)
+              skippedCount++
+              continue
+            }
+
             const question: Question = {
-              id: Date.now().toString() + i,
+              id: Date.now().toString() + i + Math.random(),
               category: values[0] || "",
               type: (values[1] as "mcq" | "truefalse") || "mcq",
               question: values[2] || "",
@@ -129,34 +175,84 @@ export default function QuestionsPage() {
               correctAnswer: values[1] === "truefalse" ? values[8] === "true" : Number.parseInt(values[8]) - 1,
               image: values[9] || undefined,
             }
+
+            // Validate correct answer
+            if (values[1] === "mcq" && (isNaN(Number(values[8])) || Number(values[8]) < 1 || Number(values[8]) > 4)) {
+              errors.push(`السطر ${i + 1}: إجابة صحيحة غير صالحة للسؤال متعدد الخيارات`)
+              skippedCount++
+              continue
+            }
+
             newQuestions.push(question)
+            successCount++
           }
         }
 
-        setQuestions((prev) => [...prev, ...newQuestions])
-        toast({
-          title: "تم رفع الملف بنجاح",
-          description: `تم إضافة ${newQuestions.length} سؤال جديد`,
-        })
+        setTimeout(() => {
+          if (replaceExistingData) {
+            setQuestions(newQuestions)
+          } else {
+            setQuestions((prev) => [...prev, ...newQuestions])
+          }
+
+          setImportProgress(100)
+          setIsImporting(false)
+
+          const summary = [
+            `✅ تم إضافة ${successCount} سؤال بنجاح`,
+            skippedCount > 0 ? `⚠️ تم تخطي ${skippedCount} سطر` : '',
+            errors.length > 0 ? `❌ ${errors.length} خطأ في المعالجة` : ''
+          ].filter(Boolean).join('\n')
+
+          toast({
+            title: replaceExistingData ? "تم استبدال الأسئلة" : "تم استيراد الأسئلة",
+            description: summary,
+          })
+
+          if (errors.length > 0 && errors.length <= 5) {
+            setTimeout(() => {
+              toast({
+                title: "تفاصيل الأخطاء",
+                description: errors.slice(0, 5).join('\n'),
+                variant: "destructive",
+              })
+            }, 1000)
+          }
+        }, 1000)
+
       } catch (error) {
+        setIsImporting(false)
         toast({
-          title: "خطأ في رفع الملف",
-          description: "يرجى التأكد من صيغة الملف",
+          title: "خطأ في معالجة الملف",
+          description: "يرجى التأكد من صيغة الملف وترميز UTF-8",
           variant: "destructive",
         })
       }
     }
-    reader.readAsText(file)
+    
+    // Read with UTF-8 encoding
+    reader.readAsText(file, 'UTF-8')
   }
 
   const handleDownloadTemplate = () => {
-    const csvContent = `Category,Type,Question,Question EN,Option 1,Option 2,Option 3,Option 4,Correct Answer,Image
-جوالة ودليلات,mcq,من صفات الجوال؟,,الاتكال على الغير,التعاون,السلبية,التردد,2,`
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const csvContent = [
+      "Category,Type,Question,Question EN,Option 1,Option 2,Option 3,Option 4,Correct Answer,Image",
+      "جوالة ودليلات,mcq,من صفات الجوال؟,,الاتكال على الغير,التعاون,السلبية,التردد,2,",
+      "كشافة ومرشدات,truefalse,الوعد الكشفي يتضمن الولاء لله والوطن والقانون الكشفي,,,,,,,true,",
+      "أشبال وزهرات,mcq,كم عدد مبادئ الحركة الكشفية الأساسية؟,,2,3,4,5,2,"
+    ].join("\n")
+    
+    // Add BOM for proper UTF-8 encoding
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
-    link.download = "questions_template.csv"
+    link.download = "قالب_الأسئلة.csv"
     link.click()
+    
+    toast({
+      title: "تم تحميل القالب",
+      description: "يمكنك تعديل القالب وإعادة رفعه",
+    })
   }
 
   const handleAddQuestion = () => {
@@ -237,6 +333,22 @@ export default function QuestionsPage() {
       title: "تم حذف الأسئلة",
       description: `تم حذف ${deletedCount} سؤال من النظام`,
     })
+  }
+
+  const handleSelectQuestion = (questionId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedQuestions([...selectedQuestions, questionId])
+    } else {
+      setSelectedQuestions(selectedQuestions.filter((id) => id !== questionId))
+    }
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedQuestions(filteredQuestions.map((question) => question.id))
+    } else {
+      setSelectedQuestions([])
+    }
   }
 
   return (
@@ -478,6 +590,26 @@ export default function QuestionsPage() {
         </CardContent>
       </Card>
 
+      {/* Bulk Actions */}
+      {selectedQuestions.length > 0 && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="h-5 w-5 text-blue-600" />
+                <span className="font-medium">تم تحديد {selectedQuestions.length} سؤال</span>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                  <Trash2 className="h-4 w-4 ml-1" />
+                  حذف المحدد
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Questions Table */}
       <Card>
         <CardHeader>
@@ -488,24 +620,11 @@ export default function QuestionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[20px]">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (selectedQuestions.length === filteredQuestions.length) {
-                        setSelectedQuestions([])
-                      } else {
-                        setSelectedQuestions(filteredQuestions.map((q) => q.id))
-                      }
-                    }}
-                  >
-                    {selectedQuestions.length === filteredQuestions.length ? (
-                      <CheckSquare className="h-4 w-4" />
-                    ) : (
-                      <Square className="h-4 w-4" />
-                    )}
-                  </Button>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedQuestions.length === filteredQuestions.length && filteredQuestions.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
                 </TableHead>
                 <TableHead>السؤال</TableHead>
                 <TableHead>الفئة</TableHead>
@@ -516,24 +635,11 @@ export default function QuestionsPage() {
             <TableBody>
               {filteredQuestions.map((question) => (
                 <TableRow key={question.id}>
-                  <TableCell className="w-[20px]">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (selectedQuestions.includes(question.id)) {
-                          setSelectedQuestions(selectedQuestions.filter((id) => id !== question.id))
-                        } else {
-                          setSelectedQuestions([...selectedQuestions, question.id])
-                        }
-                      }}
-                    >
-                      {selectedQuestions.includes(question.id) ? (
-                        <CheckSquare className="h-4 w-4" />
-                      ) : (
-                        <Square className="h-4 w-4" />
-                      )}
-                    </Button>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedQuestions.includes(question.id)}
+                      onCheckedChange={(checked) => handleSelectQuestion(question.id, checked === true)}
+                    />
                   </TableCell>
                   <TableCell className="max-w-md">
                     <p className="truncate">{question.question}</p>
@@ -634,7 +740,12 @@ export default function QuestionsPage() {
           <DialogHeader>
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>
-              هل أنت متأكد أنك تريد حذف هذا السؤال؟ لا يمكنك التراجع عن هذا الإجراء.
+              هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.
+              {questionToDelete && (
+                <div className="mt-2 p-2 bg-gray-50 rounded">
+                  <strong>السؤال:</strong> {questionToDelete.question.substring(0, 100)}...
+                </div>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -656,7 +767,10 @@ export default function QuestionsPage() {
           <DialogHeader>
             <DialogTitle>تأكيد الحذف الجماعي</DialogTitle>
             <DialogDescription>
-              هل أنت متأكد أنك تريد حذف هذه الأسئلة؟ لا يمكنك التراجع عن هذا الإجراء.
+              هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.
+              <div className="mt-2 p-2 bg-red-50 rounded text-red-700">
+                <strong>تحذير:</strong> سيتم حذف {selectedQuestions.length} سؤال نهائياً
+              </div>
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -669,6 +783,58 @@ export default function QuestionsPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Progress Modal */}
+      <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>استيراد الأسئلة</DialogTitle>
+            <DialogDescription>
+              {isImporting ? "جاري معالجة الملف..." : "إعدادات الاستيراد"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {isImporting ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <span>معالجة البيانات...</span>
+              </div>
+              <Progress value={importProgress} className="w-full" />
+              <p className="text-sm text-muted-foreground">
+                {importProgress.toFixed(0)}% مكتمل
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <Checkbox
+                  id="replace-questions"
+                  checked={replaceExistingData}
+                  onCheckedChange={setReplaceExistingData}
+                />
+                <Label htmlFor="replace-questions" className="text-sm font-medium">
+                  استبدال الأسئلة الموجودة
+                </Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {replaceExistingData 
+                  ? "سيتم حذف جميع الأسئلة الحالية واستبدالها بالأسئلة الجديدة"
+                  : "سيتم إضافة الأسئلة الجديدة مع الاحتفاظ بالأسئلة الحالية"
+                }
+              </p>
+            </div>
+          )}
+
+          <DialogFooter>
+            {!isImporting && (
+              <Button variant="outline" onClick={() => setShowImportModal(false)}>
+                إلغاء
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

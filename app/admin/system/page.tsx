@@ -199,11 +199,21 @@ export default function SystemPage() {
 
     setIsProcessing(true)
     try {
-      // Actually reset the data by clearing localStorage and resetting state
-      localStorage.removeItem("users")
-      localStorage.removeItem("questions")
-      localStorage.removeItem("results")
-      localStorage.removeItem("alerts")
+      // Actually reset the data by clearing all relevant localStorage keys
+      const keysToRemove = [
+        'users', 'questions', 'results', 'alerts', 'examResults', 
+        'pendingEvaluations', 'completedEvaluations', 'systemLogs',
+        'examAttempts', 'userSessions', 'antiCheatLogs', 'leaderPasswords'
+      ]
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key)
+      })
+
+      // Force reload the page to ensure all data is cleared from memory
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
 
       // Reset all stats to zero
       setStats({
@@ -217,11 +227,11 @@ export default function SystemPage() {
 
       // Clear logs except for this action
       setLogs([])
-      addSystemLog("إعادة ضبط جميع البيانات", "تم مسح جميع البيانات من النظام بنجاح", "warning")
+      addSystemLog("إعادة ضبط جميع البيانات", "تم مسح جميع البيانات من النظام بنجاح - سيتم إعادة تحميل الصفحة", "warning")
 
       toast({
         title: "تمت إعادة ضبط البيانات بنجاح",
-        description: "تم مسح جميع البيانات من النظام",
+        description: "تم مسح جميع البيانات من النظام - سيتم إعادة تحميل الصفحة",
       })
     } catch (error) {
       toast({
@@ -248,7 +258,16 @@ export default function SystemPage() {
 
     setIsProcessing(true)
     try {
-      // Simulate reset process
+      // Clear results-related localStorage keys
+      const resultsKeysToRemove = [
+        'results', 'examResults', 'pendingEvaluations', 
+        'completedEvaluations', 'examAttempts', 'alerts', 'antiCheatLogs'
+      ]
+      
+      resultsKeysToRemove.forEach(key => {
+        localStorage.removeItem(key)
+      })
+
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
       // Reset only results-related stats
@@ -259,11 +278,11 @@ export default function SystemPage() {
         lastUpdated: new Date().toISOString(),
       }))
 
-      addSystemLog("إعادة ضبط النتائج", "تم مسح جميع نتائج الامتحانات", "warning")
+      addSystemLog("إعادة ضبط النتائج", "تم مسح جميع نتائج الامتحانات والتنبيهات", "warning")
 
       toast({
         title: "تم إعادة ضبط النتائج",
-        description: "تم مسح جميع نتائج الامتحانات مع الاحتفاظ بالمستخدمين والأسئلة",
+        description: "تم مسح جميع نتائج الامتحانات والتنبيهات مع الاحتفاظ بالمستخدمين والأسئلة",
       })
     } catch (error) {
       toast({
@@ -480,8 +499,16 @@ export default function SystemPage() {
           filename = `الأسئلة_${new Date().toLocaleDateString("ar-EG").replace(/\//g, "-")}.csv`
           break
         case "results":
-          headers = ["كود المستخدم", "الاسم", "الفئة", "الدرجة", "النسبة المئوية", "تاريخ الإنهاء", "الحالة"]
-          data = [["1001", "أحمد محمد", "كشافة ومرشدات", "8/10", "80%", "2025-07-15", "مكتمل"]]
+          headers = [
+            "كود المستخدم", "الاسم", "الكنيسة", "الفئة", 
+            "درجة الامتحان", "النسبة المئوية", "درجة المحفوظات", 
+            "درجة السلوك", "درجة المشاركة", "درجة الترديد", 
+            "الدرجة النهائية", "تاريخ الإنهاء", "الحالة", "حالة القفل"
+          ]
+          data = [
+            ["1001", "أحمد محمد", "العذراء", "كشافة ومرشدات", "8", "80%", "85", "90", "88", "92", "86.5", "2025-07-15", "مكتمل", "مقفل"],
+            ["1002", "فاطمة علي", "مار جرجس", "أشبال وزهرات", "7", "70%", "78", "85", "80", "88", "77.5", "2025-07-16", "مكتمل", "مقفل"]
+          ]
           filename = `النتائج_${new Date().toLocaleDateString("ar-EG").replace(/\//g, "-")}.csv`
           break
         case "alerts":

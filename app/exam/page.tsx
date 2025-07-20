@@ -7,22 +7,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertTriangle, Clock, Shield, Eye } from "lucide-react"
 import { ExamInterface } from "@/components/exam-interface"
+import { ExamLocked } from "@/components/exam-locked"
 
 export default function ExamPage() {
   const [showInstructions, setShowInstructions] = useState(true)
   const [examStarted, setExamStarted] = useState(false)
+  const [isExamLocked, setIsExamLocked] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole")
+    const userCode = localStorage.getItem("userCode")
+    
     if (userRole !== "user") {
       router.push("/")
+      return
+    }
+
+    // Check if user's exam is locked
+    const lockedExams = JSON.parse(localStorage.getItem("lockedExams") || "[]")
+    if (lockedExams.includes(userCode)) {
+      setIsExamLocked(true)
     }
   }, [router])
 
   const handleStartExam = () => {
     setShowInstructions(false)
     setExamStarted(true)
+  }
+
+  if (isExamLocked) {
+    const userCode = localStorage.getItem("userCode")
+    return <ExamLocked userName={userCode || ""} />
   }
 
   if (examStarted) {

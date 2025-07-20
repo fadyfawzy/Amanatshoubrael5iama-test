@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
 import { Upload, Download, Plus, Trash2, Edit, Search } from "lucide-react"
 import {
@@ -55,6 +56,10 @@ export default function UsersPage() {
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [replaceExistingData, setReplaceExistingData] = useState(false)
+  const [importProgress, setImportProgress] = useState(0)
+  const [isImporting, setIsImporting] = useState(false)
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -69,21 +74,56 @@ export default function UsersPage() {
     const file = event.target.files?.[0]
     if (!file) return
 
+    setShowImportModal(true)
+    setIsImporting(true)
+    setImportProgress(0)
+
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
-        const csv = e.target?.result as string
-        const lines = csv.split("\n")
-        const headers = lines[0].split(",").map((h) => h.trim())
+        let csv = e.target?.result as string
+        
+        // Remove BOM if present for better Unicode support
+        if (csv.charCodeAt(0) === 0xFEFF) {
+          csv = csv.slice(1)
+        }
+
+        const lines = csv.split("\n").filter(line => line.trim())
+        const headers = lines[0].split(",").map((h) => h.trim().replace(/"/g, ''))
 
         const newUsers: User[] = []
+        const errors: string[] = []
+        let successCount = 0
+        let skippedCount = 0
+        
         for (let i = 1; i < lines.length; i++) {
+          setImportProgress((i / lines.length) * 100)
+          
           if (lines[i].trim()) {
-            const values = lines[i].split(",").map((v) => v.trim())
+            // Better CSV parsing to handle quoted fields with Arabic text
+            const values = lines[i].split(',').map((v) => v.trim().replace(/^"|"$/g, ''))
+            
             if (values.length < 6) {
-              console.warn("Skipping line due to insufficient values:", lines[i])
+              errors.push(`السطر ${i + 1}: بيانات ناقصة (${values.length} من 6 حقول مطلوبة)`)
+              skippedCount++
               continue
             }
+
+            // Validate user code format
+            if (!values[0] || values[0].length < 3) {
+              errors.push(`السطر ${i + 1}: كود المستخدم غير صالح`)
+              skippedCount++
+              continue
+            }
+
+            // Check if user already exists
+            const existingUser = users.find(u => u.code === values[0])
+            if (existingUser && !replaceExistingData) {
+              errors.push(`السطر ${i + 1}: المستخدم ${values[0]} موجود بالفعل`)
+              skippedCount++
+              continue
+            }
+
             const user: User = {
               code: values[0] || "",
               name: values[1] || "",
@@ -93,34 +133,88 @@ export default function UsersPage() {
               email: values[5] || "",
               status: "active",
             }
+
+            // Validate category
+            if (!categories.includes(user.category)) {
+              errors.push(`السطر ${i + 1}: فئة غير صالحة "${user.category}"`)
+              skippedCount++
+              continue
+            }
+
             newUsers.push(user)
+            successCount++
           }
         }
 
-        setUsers((prev) => [...prev, ...newUsers])
-        toast({
-          title: "تم رفع الملف بنجاح",
-          description: `تم إضافة ${newUsers.length} مستخدم جديد`,
-        })
+        setTimeout(() => {
+          if (replaceExistingData) {
+            setUsers(newUsers)
+          } else {
+            setUsers((prev) => {
+              const existingCodes = prev.map(u => u.code)
+              const uniqueNewUsers = newUsers.filter(u => !existingCodes.includes(u.code))
+              return [...prev, ...uniqueNewUsers]
+            })
+          }
+
+          setImportProgress(100)
+          setIsImporting(false)
+
+          const summary = [
+            `✅ تم إضافة ${successCount} مستخدم بنجاح`,
+            skippedCount > 0 ? `⚠️ تم تخطي ${skippedCount} سطر` : '',
+            errors.length > 0 ? `❌ ${errors.length} خطأ في المعالجة` : ''
+          ].filter(Boolean).join('\n')
+
+          toast({
+            title: replaceExistingData ? "تم استبدال البيانات" : "تم استيراد البيانات",
+            description: summary,
+          })
+
+          if (errors.length > 0 && errors.length <= 5) {
+            setTimeout(() => {
+              toast({
+                title: "تفاصيل الأخطاء",
+                description: errors.slice(0, 5).join('\n'),
+                variant: "destructive",
+              })
+            }, 1000)
+          }
+        }, 1000)
+
       } catch (error) {
+        setIsImporting(false)
         toast({
-          title: "خطأ في رفع الملف",
-          description: "يرجى التأكد من صيغة الملف",
+          title: "خطأ في معالجة الملف",
+          description: "يرجى التأكد من صيغة الملف وترميز UTF-8",
           variant: "destructive",
         })
       }
     }
-    reader.readAsText(file)
+    
+    // Read with UTF-8 encoding
+    reader.readAsText(file, 'UTF-8')
   }
 
   const handleDownloadTemplate = () => {
-    const csvContent =
-      "Code,Name,Church,Category,Password,Email\n1005,ماري,العذراء,جوالة ودليلات,12345678,example2@email.com"
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const csvContent = [
+      "Code,Name,Church,Category,Password,Email",
+      "1001,أحمد محمد,العذراء,كشافة ومرشدات,12345678,ahmed@example.com",
+      "1002,فاطمة علي,مار جرجس,أشبال وزهرات,87654321,fatma@example.com",
+      "1003,محمد حسن,الأنبا أنطونيوس,جوالة ودليلات,11223344,mohamed@example.com"
+    ].join("\n")
+    
+    // Add BOM for proper UTF-8 encoding
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
-    link.download = "user_template.csv"
+    link.download = "قالب_المستخدمين.csv"
     link.click()
+    
+    toast({
+      title: "تم تحميل القالب",
+      description: "يمكنك تعديل القالب وإعادة رفعه",
+    })
   }
 
   const handleDownloadUsers = () => {
@@ -129,15 +223,21 @@ export default function UsersPage() {
       headers,
       ...users.map(
         (user) =>
-          `${user.code},${user.name},${user.church},${user.category},${user.password},${user.email},${user.status || "active"}`,
+          `"${user.code}","${user.name}","${user.church}","${user.category}","${user.password}","${user.email}","${user.status || "active"}"`
       ),
     ].join("\n")
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    // Add BOM for proper UTF-8 encoding
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
-    link.download = "users_export.csv"
+    link.download = `تصدير_المستخدمين_${new Date().toLocaleDateString('ar-EG').replace(/\//g, '-')}.csv`
     link.click()
+    
+    toast({
+      title: "تم تصدير البيانات",
+      description: `تم تصدير ${users.length} مستخدم بنجاح`,
+    })
   }
 
   const handleAddUser = () => {
@@ -198,6 +298,12 @@ export default function UsersPage() {
   const confirmBulkDelete = () => {
     setUsers((prev) => prev.filter((user) => !selectedUsers.includes(user.code)))
     const deletedCount = selectedUsers.length
+    setSelectedUsers([])
+    setShowBulkDeleteModal(false)
+    toast({
+      title: "تم حذف المستخدمين",
+      description: `تم حذف ${deletedCount} مستخدم من النظام`,
+    })
     setSelectedUsers([])
     setShowBulkDeleteModal(false)
     toast({
@@ -394,6 +500,26 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
+      {/* Bulk Actions */}
+      {selectedUsers.length > 0 && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Checkbox className="h-5 w-5" checked={true} />
+                <span className="font-medium">تم تحديد {selectedUsers.length} مستخدم</span>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
+                  <Trash2 className="h-4 w-4 ml-1" />
+                  حذف المحدد
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Users Table */}
       <Card>
         <CardHeader>
@@ -494,7 +620,10 @@ export default function UsersPage() {
           <DialogHeader>
             <DialogTitle>تأكيد الحذف المتعدد</DialogTitle>
             <DialogDescription>
-              هل أنت متأكد من حذف {selectedUsers.length} مستخدم؟ لا يمكن التراجع عن هذا الإجراء.
+              هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.
+              <div className="mt-2 p-2 bg-red-50 rounded text-red-700">
+                <strong>تحذير:</strong> سيتم حذف {selectedUsers.length} مستخدم نهائياً
+              </div>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -504,6 +633,58 @@ export default function UsersPage() {
             <Button variant="destructive" onClick={confirmBulkDelete}>
               تأكيد الحذف
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Progress Modal */}
+      <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>استيراد المستخدمين</DialogTitle>
+            <DialogDescription>
+              {isImporting ? "جاري معالجة الملف..." : "إعدادات الاستيراد"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {isImporting ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <span>معالجة البيانات...</span>
+              </div>
+              <Progress value={importProgress} className="w-full" />
+              <p className="text-sm text-muted-foreground">
+                {importProgress.toFixed(0)}% مكتمل
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 space-x-reverse">
+                <Checkbox
+                  id="replace-data"
+                  checked={replaceExistingData}
+                  onCheckedChange={setReplaceExistingData}
+                />
+                <Label htmlFor="replace-data" className="text-sm font-medium">
+                  استبدال البيانات الموجودة
+                </Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {replaceExistingData 
+                  ? "سيتم حذف جميع المستخدمين الحاليين واستبدالهم بالبيانات الجديدة"
+                  : "سيتم إضافة المستخدمين الجدد مع الاحتفاظ بالمستخدمين الحاليين"
+                }
+              </p>
+            </div>
+          )}
+
+          <DialogFooter>
+            {!isImporting && (
+              <Button variant="outline" onClick={() => setShowImportModal(false)}>
+                إلغاء
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

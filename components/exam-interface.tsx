@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { AlertTriangle, Clock, Send, BookOpen } from "lucide-react"
+import { AlertTriangle, Clock, Send, BookOpen, Lock } from "lucide-react"
 import { PostExamEvaluation } from "./post-exam-evaluation"
 
 // Questions will be loaded from localStorage or API
@@ -20,6 +20,15 @@ const loadQuestions = () => {
   return []
 }
 
+// Check if exam is locked for user
+const isExamLocked = (userCode: string) => {
+  if (typeof window !== "undefined") {
+    const lockedExams = JSON.parse(localStorage.getItem("lockedExams") || "[]")
+    return lockedExams.includes(userCode)
+  }
+  return false
+}
+
 export function ExamInterface() {
   const [questions, setQuestions] = useState<any[]>([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
@@ -29,12 +38,32 @@ export function ExamInterface() {
   const [showWarning, setShowWarning] = useState(false)
   const [examCompleted, setExamCompleted] = useState(false)
   const [showEvaluation, setShowEvaluation] = useState(false)
+  const [examLocked, setExamLocked] = useState(false)
   const router = useRouter()
 
-  // Load questions on component mount
+  // Load questions on component mount and check exam lock status
   useEffect(() => {
-    const examQuestions = loadQuestions()
-    setQuestions(examQuestions)
+    const userCode = localStorage.getItem("userCode")
+    const userCategory = localStorage.getItem("userCategory")
+    
+    // Check if exam is locked
+    if (userCode && isExamLocked(userCode)) {
+      setExamLocked(true)
+      return
+    }
+
+    // Load all questions
+    const allQuestions = loadQuestions()
+    
+    // Filter questions by user category if available
+    let filteredQuestions = allQuestions
+    if (userCategory && allQuestions.length > 0) {
+      filteredQuestions = allQuestions.filter((q: any) => 
+        !q.category || q.category === userCategory
+      )
+    }
+    
+    setQuestions(filteredQuestions)
   }, [])
 
   // Anti-cheating: Monitor tab switching
@@ -104,6 +133,36 @@ export function ExamInterface() {
     const minutes = Math.floor((seconds % 3600) / 60)
     const secs = seconds % 60
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // Show locked exam message
+  if (examLocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+              <Lock className="w-8 h-8 text-red-600" />
+            </div>
+            <CardTitle className="text-xl text-red-600">الامتحان مقفل</CardTitle>
+            <CardDescription className="text-center">
+              لقد أكملت هذا الامتحان بالفعل ولا يمكنك إعادة دخوله
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-gray-600 mb-4">
+              تم تسليم إجاباتك وإقفال الامتحان نهائياً
+            </p>
+            <Button 
+              onClick={() => router.push("/")} 
+              className="w-full"
+            >
+              العودة للصفحة الرئيسية
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   // If no questions are available, show empty state

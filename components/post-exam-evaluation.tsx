@@ -18,6 +18,8 @@ interface PostExamEvaluationProps {
 export function PostExamEvaluation({ answers, questions }: PostExamEvaluationProps) {
   const [evaluationScore, setEvaluationScore] = useState([75])
   const [leaderPassword, setLeaderPassword] = useState("")
+  const [leaderName, setLeaderName] = useState("")
+  const [isMemorizationExam, setIsMemorizationExam] = useState(false)
   const [isLocked, setIsLocked] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [examAlreadyLocked, setExamAlreadyLocked] = useState(false)
@@ -32,6 +34,10 @@ export function PostExamEvaluation({ answers, questions }: PostExamEvaluationPro
     if (lockedExams.includes(userCode)) {
       setExamAlreadyLocked(true)
     }
+
+    // Check if this is a memorization exam (you can determine this based on question categories or a setting)
+    const examSettings = JSON.parse(localStorage.getItem("examSettings") || "{}")
+    setIsMemorizationExam(examSettings.isMemorizationExam || false)
   }, [])
 
   // Calculate automatic score
@@ -80,24 +86,37 @@ export function PostExamEvaluation({ answers, questions }: PostExamEvaluationPro
   }
 
   const handleSaveEvaluation = async () => {
-    if (!leaderPassword) {
-      toast({
-        title: "خطأ",
-        description: "يرجى إدخال كلمة مرور القائد",
-        variant: "destructive",
-      })
-      return
-    }
+    // For memorization exams, only require leader name
+    if (isMemorizationExam) {
+      if (!leaderName.trim()) {
+        toast({
+          title: "خطأ",
+          description: "يرجى إدخال اسم القائد",
+          variant: "destructive",
+        })
+        return
+      }
+    } else {
+      // For regular exams, require leader password
+      if (!leaderPassword) {
+        toast({
+          title: "خطأ",
+          description: "يرجى إدخال كلمة مرور القائد",
+          variant: "destructive",
+        })
+        return
+      }
 
-    // Validate leader password
-    const validPasswords = ["Leader123", "القائد123", "F@dy1313"]
-    if (!validPasswords.includes(leaderPassword)) {
-      toast({
-        title: "كلمة مرور خاطئة",
-        description: "يرجى إدخال كلمة مرور القائد الصحيحة",
-        variant: "destructive",
-      })
-      return
+      // Validate leader password
+      const validPasswords = ["Leader123", "القائد123", "F@dy1313"]
+      if (!validPasswords.includes(leaderPassword)) {
+        toast({
+          title: "كلمة مرور خاطئة",
+          description: "يرجى إدخال كلمة مرور القائد الصحيحة",
+          variant: "destructive",
+        })
+        return
+      }
     }
 
     setIsLoading(true)
@@ -223,20 +242,39 @@ export function PostExamEvaluation({ answers, questions }: PostExamEvaluationPro
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="leaderPassword">كلمة مرور القائد</Label>
-              <Input
-                id="leaderPassword"
-                type="password"
-                value={leaderPassword}
-                onChange={(e) => setLeaderPassword(e.target.value)}
-                placeholder="أدخل كلمة مرور القائد"
-                className="text-right"
-              />
-              <p className="text-xs text-gray-500">مطلوبة لحفظ التقييم وقفل الامتحان</p>
-            </div>
+            {isMemorizationExam ? (
+              <div className="space-y-2">
+                <Label htmlFor="leaderName">اسم القائد</Label>
+                <Input
+                  id="leaderName"
+                  type="text"
+                  value={leaderName}
+                  onChange={(e) => setLeaderName(e.target.value)}
+                  placeholder="أدخل اسم القائد"
+                  className="text-right"
+                />
+                <p className="text-xs text-gray-500">مطلوب لحفظ تقييم امتحان التسميع</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="leaderPassword">كلمة مرور القائد</Label>
+                <Input
+                  id="leaderPassword"
+                  type="password"
+                  value={leaderPassword}
+                  onChange={(e) => setLeaderPassword(e.target.value)}
+                  placeholder="أدخل كلمة مرور القائد"
+                  className="text-right"
+                />
+                <p className="text-xs text-gray-500">مطلوبة لحفظ التقييم وقفل الامتحان</p>
+              </div>
+            )}
 
-            <Button onClick={handleSaveEvaluation} disabled={isLoading || !leaderPassword} className="w-full">
+            <Button 
+              onClick={handleSaveEvaluation} 
+              disabled={isLoading || (isMemorizationExam ? !leaderName.trim() : !leaderPassword)} 
+              className="w-full"
+            >
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

@@ -47,6 +47,7 @@ interface ExamSettings {
   showResults: boolean
   allowRetake: boolean
   language: string
+  isMemorizationExam: boolean
 }
 
 interface Question {
@@ -72,6 +73,7 @@ export default function TestSettingsPage() {
     showResults: true,
     allowRetake: false,
     language: "arabic",
+    isMemorizationExam: false,
   })
 
   const [questions, setQuestions] = useState<Question[]>([
@@ -111,7 +113,8 @@ export default function TestSettingsPage() {
   useEffect(() => {
     const autoSave = () => {
       setIsAutoSaving(true)
-      // Simulate API call
+      // Save to localStorage
+      localStorage.setItem("examSettings", JSON.stringify(examSettings))
       setTimeout(() => {
         setIsAutoSaving(false)
         setLastSaved(new Date())
@@ -121,6 +124,19 @@ export default function TestSettingsPage() {
     const interval = setInterval(autoSave, 2000)
     return () => clearInterval(interval)
   }, [examSettings, questions])
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("examSettings")
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings)
+        setExamSettings(parsedSettings)
+      } catch (error) {
+        console.error("Error loading exam settings:", error)
+      }
+    }
+  }, [])
 
   const handleSettingChange = (key: keyof ExamSettings, value: any) => {
     setExamSettings((prev) => ({
@@ -432,6 +448,13 @@ export default function TestSettingsPage() {
                   <Switch
                     checked={examSettings.allowRetake}
                     onCheckedChange={(checked) => handleSettingChange("allowRetake", checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label>امتحان تسميع (بدون كلمة مرور القائد)</Label>
+                  <Switch
+                    checked={examSettings.isMemorizationExam}
+                    onCheckedChange={(checked) => handleSettingChange("isMemorizationExam", checked)}
                   />
                 </div>
                 <div>

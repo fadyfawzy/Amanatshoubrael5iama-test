@@ -1,30 +1,31 @@
-# Enhance netlify application
+# Emtihanat Eldorou' – General Secretariat for Scouts & Guides, Shoubra El-Kheima Diocese
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+A comprehensive exam web application for Scouts & Guides with:
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/fadyfawzyfahmy-1191s-projects/v0-enhance-netlify-application)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/uoxntpcyCUP)
+## Features
+- Question categories: Rovers, Guides, Cubs, People with Disabilities
+- User login with unique codes (one-time use)
+- Exam page with countdown timer and anti-cheat
+- No result display for users after submission  
+- Post Evaluation (Memorization Exam) with leader password "321m"
+- Admin dashboard (RTL) for complete management
+- React + TailwindCSS with Arabic Cairo font
+- Fully responsive design
 
-## Overview
+## Test Credentials
+- **Admin**: Fady / F@dy1313
+- **Leader Password**: 321m
+- **Sample User**: Any unused code
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## Technical Stack
+- Next.js 15
+- React
+- TailwindCSS
+- Radix UI Components
+- Cairo Font (Google Fonts)
+- RTL (Right-to-Left) Layout
 
-## Deployment
+---
+© 2025 General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese. All rights reserved.
 
-Your project is live at:
-
-**[https://vercel.com/fadyfawzyfahmy-1191s-projects/v0-enhance-netlify-application](https://vercel.com/fadyfawzyfahmy-1191s-projects/v0-enhance-netlify-application)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/uoxntpcyCUP](https://v0.dev/chat/projects/uoxntpcyCUP)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+<!-- Deployment Trigger: 2025-01-15 -->

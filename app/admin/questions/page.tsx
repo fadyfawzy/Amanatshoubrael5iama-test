@@ -39,12 +39,12 @@ interface Question {
   image?: string
 }
 
-const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
+const categories = ["براعم", "أشبال", "كشافة", "مرشدات", "جوالة", "ذوو الهمم"]
 
 const sampleQuestions: Question[] = [
   {
     id: "1",
-    category: "جوالة ودليلات",
+    category: "جوالة",
     type: "mcq",
     question: "من صفات الجوال؟",
     option1: "الاتكال على الغير",
@@ -55,14 +55,14 @@ const sampleQuestions: Question[] = [
   },
   {
     id: "2",
-    category: "كشافة ومرشدات",
+    category: "كشافة",
     type: "truefalse",
     question: "الوعد الكشفي يتضمن الولاء لله والوطن والقانون الكشفي",
     correctAnswer: true,
   },
   {
     id: "3",
-    category: "أشبال وزهرات",
+    category: "أشبال",
     type: "mcq",
     question: "كم عدد مبادئ الحركة الكشفية الأساسية؟",
     option1: "2",
@@ -70,6 +70,35 @@ const sampleQuestions: Question[] = [
     option3: "4",
     option4: "5",
     correctAnswer: 1,
+  },
+  {
+    id: "4",
+    category: "براعم",
+    type: "mcq",
+    question: "ما هو شعار البراعم؟",
+    option1: "كن مستعداً",
+    option2: "افعل ما استطعت",
+    option3: "اعمل بجد",
+    option4: "اخدم وطنك",
+    correctAnswer: 1,
+  },
+  {
+    id: "5",
+    category: "مرشدات",
+    type: "truefalse",
+    question: "المرشدة تساعد الآخرين في جميع الأوقات",
+    correctAnswer: true,
+  },
+  {
+    id: "6",
+    category: "ذوو الهمم",
+    type: "mcq",
+    question: "ما هو أهم شيء في الكشفية؟",
+    option1: "المساعدة",
+    option2: "التعاون",
+    option3: "الصداقة",
+    option4: "جميع ما سبق",
+    correctAnswer: 3,
   },
 ]
 
@@ -237,9 +266,12 @@ export default function QuestionsPage() {
   const handleDownloadTemplate = () => {
     const csvContent = [
       "Category,Type,Question,Question EN,Option 1,Option 2,Option 3,Option 4,Correct Answer,Image",
-      "جوالة ودليلات,mcq,من صفات الجوال؟,,الاتكال على الغير,التعاون,السلبية,التردد,2,",
-      "كشافة ومرشدات,truefalse,الوعد الكشفي يتضمن الولاء لله والوطن والقانون الكشفي,,,,,,,true,",
-      "أشبال وزهرات,mcq,كم عدد مبادئ الحركة الكشفية الأساسية؟,,2,3,4,5,2,"
+      "جوالة,mcq,من صفات الجوال؟,,الاتكال على الغير,التعاون,السلبية,التردد,2,",
+      "كشافة,truefalse,الوعد الكشفي يتضمن الولاء لله والوطن والقانون الكشفي,,,,,,,true,",
+      "أشبال,mcq,كم عدد مبادئ الحركة الكشفية الأساسية؟,,2,3,4,5,2,",
+      "براعم,mcq,ما هو شعار البراعم؟,,كن مستعداً,افعل ما استطعت,اعمل بجد,اخدم وطنك,2,",
+      "مرشدات,truefalse,المرشدة تساعد الآخرين في جميع الأوقات,,,,,,,true,",
+      "ذوو الهمم,mcq,ما هو أهم شيء في الكشفية؟,,المساعدة,التعاون,الصداقة,جميع ما سبق,4,"
     ].join("\n")
     
     // Add BOM for proper UTF-8 encoding

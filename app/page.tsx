@@ -37,14 +37,22 @@ export default function LoginPage() {
           description: "مرحباً بك في لوحة التحكم",
         })
       } else {
+        // Check if code has been used before
+        const usedCodes = JSON.parse(localStorage.getItem("usedExamCodes") || "[]")
+        if (usedCodes.includes(userCode)) {
+          throw new Error("تم استخدام هذا الكود من قبل ولا يمكن إعادة استخدامه")
+        }
+
         // Check regular user credentials (simulate)
         if (userCode && password) {
+          // In a real system, you would validate against a database
+          // For demo purposes, accept any code/password combination that isn't already used
           localStorage.setItem("userRole", "user")
           localStorage.setItem("userCode", userCode)
           router.push("/exam")
           toast({
             title: "تم تسجيل الدخول بنجاح",
-            description: "مرحباً بك في منصة الامتحانات",
+            description: "مرحباً بك في امتحانات الدرجات",
           })
         } else {
           throw new Error("بيانات غير صحيحة")
@@ -69,9 +77,9 @@ export default function LoginPage() {
           <div className="mx-auto h-32 w-32 mb-6">
             <img src="/logo.png" alt="شعار الأمانة العامة للكشافة والمرشدات" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">منصة الامتحانات</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">امتحانات الدرجات</h1>
           <p className="text-sm text-gray-600">الأمانة العامة للكشافة والمرشدات</p>
-          <p className="text-sm text-gray-600">مطرانية شبرا الخيمة وكل توابعها</p>
+          <p className="text-sm text-gray-600">مطرانية شبرا الخيمة</p>
         </div>
 
         {/* Login Form */}
@@ -138,7 +146,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-500">
-          © 2025 الأمانة العامة للكشافة والمرشدات بمطرانية شبرا الخيمة - جميع الحقوق محفوظة
+          © 2025 General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese. All rights reserved.
         </div>
       </div>
     </div>

@@ -43,10 +43,11 @@ export default function AdminDashboard() {
   ]
 
   const recentActivity = [
-    { user: "أحمد محمد", action: "أكمل امتحان براعم وذو الهمم", time: "منذ 5 دقائق" },
-    { user: "فاطمة علي", action: "أكمل امتحان أشبال وزهرات", time: "منذ 15 دقيقة" },
+    { user: "أحمد محمد", action: "أكمل امتحان كشافة", time: "منذ 5 دقائق" },
+    { user: "فاطمة علي", action: "أكمل امتحان مرشدات", time: "منذ 15 دقيقة" },
     { user: "محمد حسن", action: "تنبيه: تبديل التبويبات", time: "منذ 20 دقيقة", isAlert: true },
-    { user: "نور أحمد", action: "أكمل امتحان متقدم ورائدات", time: "منذ ساعة" },
+    { user: "نور أحمد", action: "أكمل امتحان جوالة", time: "منذ ساعة" },
+    { user: "مينا صبحي", action: "أكمل امتحان براعم", time: "منذ ساعتين" },
   ]
 
   return (
@@ -106,11 +107,12 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-4">
               {[
-                { name: "براعم وذو الهمم", count: 45, color: "bg-blue-500" },
-                { name: "أشبال وزهرات", count: 38, color: "bg-green-500" },
-                { name: "كشافة ومرشدات", count: 52, color: "bg-purple-500" },
-                { name: "متقدم ورائدات", count: 29, color: "bg-orange-500" },
-                { name: "جوالة ودليلات", count: 21, color: "bg-red-500" },
+                { name: "براعم", count: 35, color: "bg-blue-500" },
+                { name: "أشبال", count: 42, color: "bg-green-500" },
+                { name: "كشافة", count: 38, color: "bg-purple-500" },
+                { name: "مرشدات", count: 29, color: "bg-orange-500" },
+                { name: "جوالة", count: 21, color: "bg-red-500" },
+                { name: "ذوو الهمم", count: 15, color: "bg-gray-500" },
               ].map((category) => (
                 <div key={category.name} className="flex items-center space-x-4 space-x-reverse">
                   <div className={`h-3 w-3 rounded-full ${category.color}`} />

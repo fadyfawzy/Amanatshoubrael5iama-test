@@ -12,6 +12,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			'cairo': ['Cairo', 'Noto Kufi Arabic', 'sans-serif'],
+  			'sans': ['Cairo', 'Noto Kufi Arabic', 'system-ui', 'sans-serif'],
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

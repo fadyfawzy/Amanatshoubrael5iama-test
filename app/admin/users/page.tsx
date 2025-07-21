@@ -34,7 +34,7 @@ interface User {
   status?: "active" | "inactive"
 }
 
-const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
+const categories = ["براعم", "أشبال", "كشافة", "مرشدات", "جوالة", "ذوو الهمم"]
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -199,9 +199,12 @@ export default function UsersPage() {
   const handleDownloadTemplate = () => {
     const csvContent = [
       "Code,Name,Church,Category,Password,Email",
-      "1001,أحمد محمد,العذراء,كشافة ومرشدات,12345678,ahmed@example.com",
-      "1002,فاطمة علي,مار جرجس,أشبال وزهرات,87654321,fatma@example.com",
-      "1003,محمد حسن,الأنبا أنطونيوس,جوالة ودليلات,11223344,mohamed@example.com"
+      "1001,أحمد محمد,العذراء,كشافة,12345678,ahmed@example.com",
+      "1002,فاطمة علي,مار جرجس,أشبال,87654321,fatma@example.com",
+      "1003,محمد حسن,الأنبا أنطونيوس,جوالة,11223344,mohamed@example.com",
+      "1004,مريم يوسف,العذراء,مرشدات,44556677,mariam@example.com",
+      "1005,مينا صبحي,مار جرجس,براعم,77889900,mina@example.com",
+      "1006,نادية محمد,الأنبا أنطونيوس,ذوو الهمم,99887766,nadia@example.com"
     ].join("\n")
     
     // Add BOM for proper UTF-8 encoding

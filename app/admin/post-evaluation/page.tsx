@@ -50,8 +50,8 @@ const samplePendingEvaluations: PendingEvaluation[] = [
     userCode: "1001",
     userName: "أحمد محمد",
     church: "العذراء",
-    category: "كشافة ومرشدات",
-    examName: "امتحان الكشافة - المستوى الأول",
+    category: "كشافة",
+    examName: "امتحان الكشافة",
     examScore: 8,
     examPercent: 80,
     completionTime: "2025-07-17T14:30:00",
@@ -62,8 +62,8 @@ const samplePendingEvaluations: PendingEvaluation[] = [
     userCode: "1002",
     userName: "فاطمة علي",
     church: "مار جرجس",
-    category: "أشبال وزهرات",
-    examName: "امتحان الأشبال - المستوى الثاني",
+    category: "مرشدات",
+    examName: "امتحان المرشدات",
     examScore: 7,
     examPercent: 70,
     completionTime: "2025-07-17T13:45:00",
@@ -74,12 +74,36 @@ const samplePendingEvaluations: PendingEvaluation[] = [
     userCode: "1003",
     userName: "محمد حسن",
     church: "الأنبا أنطونيوس",
-    category: "جوالة ودليلات",
-    examName: "امتحان الجوالة - المستوى المتقدم",
+    category: "جوالة",
+    examName: "امتحان الجوالة",
     examScore: 9,
     examPercent: 90,
     completionTime: "2025-07-17T12:20:00",
     status: "completed",
+  },
+  {
+    id: "4",
+    userCode: "1004",
+    userName: "مريم يوسف",
+    church: "العذراء",
+    category: "أشبال",
+    examName: "امتحان الأشبال",
+    examScore: 6,
+    examPercent: 60,
+    completionTime: "2025-07-17T11:15:00",
+    status: "pending",
+  },
+  {
+    id: "5",
+    userCode: "1005",
+    userName: "مينا صبحي",
+    church: "مار جرجس",
+    category: "براعم",
+    examName: "امتحان البراعم",
+    examScore: 8,
+    examPercent: 80,
+    completionTime: "2025-07-17T10:30:00",
+    status: "locked",
   },
 ]
 
@@ -90,7 +114,7 @@ const evaluationCriteria: EvaluationCriteria[] = [
   { id: "scout_chants", name: "الترديد الكشفي", maxScore: 100, weight: 10 },
 ]
 
-const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
+const categories = ["براعم", "أشبال", "كشافة", "مرشدات", "جوالة", "ذوو الهمم"]
 
 export default function PostEvaluationPage() {
   const [pendingEvaluations, setPendingEvaluations] = useState<PendingEvaluation[]>(samplePendingEvaluations)
@@ -106,7 +130,7 @@ export default function PostEvaluationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showLeaderPasswordConfig, setShowLeaderPasswordConfig] = useState(false)
   const [newLeaderPassword, setNewLeaderPassword] = useState("")
-  const [leaderPasswords, setLeaderPasswords] = useState(["Leader123", "القائد123", "F@dy1313"])
+  const [leaderPasswords, setLeaderPasswords] = useState(["321m"])
 
   const { toast } = useToast()
 
@@ -297,7 +321,7 @@ export default function PostEvaluationPage() {
             <User className="h-8 w-8 text-[hsl(var(--logo-green))]" />
             تقييم ما بعد الامتحان
           </h1>
-          <p className="text-muted-foreground">تقييم المحفوظات والسلوك للطلاب</p>
+          <p className="text-muted-foreground">تقييم ما بعد الامتحان - امتحان المحفوظات والسلوك</p>
         </div>
         <div className="flex items-center gap-2">
           <Button 
@@ -654,7 +678,7 @@ export default function PostEvaluationPage() {
             </div>
 
             <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
-              <strong>ملاحظة:</strong> هذه كلمات المرور مطلوبة للقادة لإجراء التقييمات وقفل الامتحانات
+              <strong>ملاحظة:</strong> كلمة المرور الموحدة للقادة لدخول وتقديم تقييمات امتحان المحفوظات. الكلمة الافتراضية: "321m"
             </div>
           </div>
 
@@ -668,7 +692,7 @@ export default function PostEvaluationPage() {
 
       {/* Footer */}
       <div className="text-center text-xs text-gray-500 pt-6">
-        © 2025 الأمانة العامة للكشافة والمرشدات بمطرانية شبرا الخيمة - جميع الحقوق محفوظة
+        © 2025 General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese. All rights reserved.
       </div>
     </div>
   )

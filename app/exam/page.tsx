@@ -58,9 +58,24 @@ export default function ExamPage() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">منصة الامتحانات</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">امتحانات الدرجات</h1>
             <p className="text-gray-600">الأمانة العامة للكشافة والمرشدات - مطرانية شبرا الخيمة</p>
           </div>
+
+          {/* Bible Verse */}
+          <Card className="border-2 border-blue-200 bg-blue-50">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="mx-auto h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                  <Shield className="h-4 w-4 text-blue-600" />
+                </div>
+                <blockquote className="text-blue-800 font-medium italic mb-2">
+                  "لأن طرق الإنسان أمام عيني الرب، وهو يزن جميع سبله"
+                </blockquote>
+                <cite className="text-blue-600 text-sm">أمثال 5: 21</cite>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Instructions Card */}
           <Card className="border-2 border-red-200">

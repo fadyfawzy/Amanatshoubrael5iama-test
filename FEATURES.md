@@ -1,7 +1,7 @@
-# نظام إدارة الكشافة والمرشدات - الميزات المحدثة
+# Emtihanat Eldorou' – General Secretariat for Scouts & Guides, Shoubra El-Kheima Diocese
 
 ## 🎯 نظرة عامة
-نظام شامل لإدارة امتحانات الكشافة والمرشدات بمطرانية شبرا الخيمة، مع ميزات متقدمة لمكافحة الغش وتقييم شامل.
+نظام امتحانات الدرجات الشامل للأمانة العامة للكشافة والمرشدات بمطرانية شبرا الخيمة، مع ميزات متقدمة لمكافحة الغش وتقييم المحفوظات.
 
 ---
 
@@ -174,10 +174,17 @@ const defaultPasswords = ["Leader123", "القائد123", "F@dy1313"]
 | مدير | Fady | F@dy1313 |
 | مستخدم عينة | 1001 | 12345678 |
 
-### 🏆 كلمات مرور القادة
-- Leader123
-- القائد123  
-- F@dy1313
+### 🏆 كلمة مرور القادة الموحدة
+- **كلمة المرور الموحدة للقادة**: 321m
+- لتقييم امتحان المحفوظات والسلوك
+
+## 📋 فئات الامتحانات المحدثة
+- **براعم** (Cubs)
+- **أشبال** (Scouts - Boys)  
+- **كشافة** (Scouts - Advanced)
+- **مرشدات** (Guides)
+- **جوالة** (Rovers)
+- **ذوو الهمم** (People with Disabilities)
 
 ---
 
@@ -252,4 +259,57 @@ pnpm start
 
 ---
 
-**© 2025 الأمانة العامة للكشافة والمرشدات بمطرانية شبرا الخيمة - جميع الحقوق محفوظة**
+## ✅ **Core Requirements Implemented:**
+
+### 1. 🏷️ **Application Name & Branding**
+- **Title**: "امتحانات الدرجات | Emtihanat Eldorou'"
+- **Subtitle**: "General Secretariat for Scouts & Guides, Shoubra El-Kheima Diocese"
+- **Cairo Font**: Implemented with Google Fonts
+- **RTL Layout**: Full Arabic RTL support
+
+### 2. 📚 **Question Categories & Template**
+- ✅ Updated categories: براعم، أشبال، كشافة، مرشدات، جوالة، ذوو الهمم
+- ✅ Admin can filter, add, edit questions by category
+- ✅ CSV/Excel bulk upload with validation
+- ✅ Downloadable templates with examples
+
+### 3. 🔐 **User Login with Unique Code**
+- ✅ Unique exam code system implemented
+- ✅ One-time use validation
+- ✅ Code marking system prevents re-access
+- ✅ Cannot re-access exam after submission
+
+### 4. 📖 **Exam Flow with Bible Verse**
+- ✅ Pre-exam notice with Bible verse (Proverbs 5:21)
+- ✅ Arabic translation: "لأن طرق الإنسان أمام عيني الرب، وهو يزن جميع سبله"
+- ✅ One question per page with Next/Previous buttons
+- ✅ Timer countdown and auto-submit
+- ✅ Tab-switching prevention (anti-cheat)
+- ✅ **Results hidden from users** - only admin sees results
+
+### 5. 🎓 **Post Evaluation (Memorization Exam)**
+- ✅ Unified leader password: **"321m"**
+- ✅ Leader authentication required for evaluations
+- ✅ Weighted scoring system for memorization and behavior
+- ✅ Post-evaluation workflow with exam locking
+
+### 6. 🏛️ **Admin Dashboard (RTL)**
+- ✅ Complete RTL Arabic layout
+- ✅ Add/Edit/Delete questions by category
+- ✅ CSV/Excel import/export with UTF-8 BOM
+- ✅ Results visible only to admin
+- ✅ Comprehensive management system
+
+### 7. 🎨 **Technical Implementation**
+- ✅ **React + Next.js 15 + TailwindCSS**
+- ✅ **Cairo Font** from Google Fonts
+- ✅ **Fully responsive** design (mobile, tablet, desktop)
+- ✅ **RTL layout** throughout the application
+- ✅ **Anti-cheat measures** implemented
+
+### 8. 📝 **Footer**
+- ✅ "© 2025 General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese. All rights reserved."
+
+---
+
+**© 2025 General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese. All rights reserved.**

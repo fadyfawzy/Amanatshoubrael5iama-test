@@ -72,8 +72,8 @@ const sampleAlerts: Alert[] = [
     userCode: "1001",
     userName: "أحمد محمد",
     church: "العذراء",
-    category: "كشافة ومرشدات",
-    examName: "امتحان الكشافة - المستوى الأول",
+    category: "كشافة",
+    examName: "امتحان الكشافة",
     alertType: "تبديل التبويبات",
     timestamp: "2025-07-17T14:30:15",
     alertCount: 2,
@@ -88,8 +88,8 @@ const sampleAlerts: Alert[] = [
     userCode: "1002",
     userName: "فاطمة علي",
     church: "مار جرجس",
-    category: "أشبال وزهرات",
-    examName: "امتحان الأشبال - المستوى الثاني",
+    category: "مرشدات",
+    examName: "امتحان المرشدات",
     alertType: "تصغير النافذة",
     timestamp: "2025-07-17T13:45:22",
     alertCount: 1,
@@ -103,8 +103,8 @@ const sampleAlerts: Alert[] = [
     userCode: "1003",
     userName: "محمد حسن",
     church: "الأنبا أنطونيوس",
-    category: "جوالة ودليلات",
-    examName: "امتحان الجوالة - المستوى المتقدم",
+    category: "جوالة",
+    examName: "امتحان الجوالة",
     alertType: "فتح من جهاز آخر",
     timestamp: "2025-07-17T12:20:10",
     alertCount: 1,
@@ -118,8 +118,8 @@ const sampleAlerts: Alert[] = [
     userCode: "1004",
     userName: "نور أحمد",
     church: "العذراء",
-    category: "متقدم ورائدات",
-    examName: "امتحان المتقدم - الشارة الذهبية",
+    category: "أشبال",
+    examName: "امتحان الأشبال",
     alertType: "تبديل التبويبات",
     timestamp: "2025-07-17T11:15:33",
     alertCount: 3,
@@ -133,8 +133,8 @@ const sampleAlerts: Alert[] = [
     userCode: "1005",
     userName: "ماري",
     church: "العذراء",
-    category: "جوالة ودليلات",
-    examName: "امتحان الجوالة - الشارة الفضية",
+    category: "براعم",
+    examName: "امتحان البراعم",
     alertType: "خروج من صفحة الامتحان",
     timestamp: "2025-07-17T10:30:45",
     alertCount: 1,
@@ -145,7 +145,7 @@ const sampleAlerts: Alert[] = [
   },
 ]
 
-const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
+const categories = ["براعم", "أشبال", "كشافة", "مرشدات", "جوالة", "ذوو الهمم"]
 const churches = ["العذراء", "مار جرجس", "الأنبا أنطونيوس", "الملاك ميخائيل", "مارمرقس"]
 const alertTypes = [
   "تبديل التبويبات",
@@ -1064,7 +1064,7 @@ export default function AlertsPage() {
 
       {/* Footer */}
       <div className="text-center text-xs text-gray-500 pt-6">
-        © 2025 الأمانة العامة للكشافة والمرشدات بمطرانية شبرا الخيمة - جميع الحقوق محفوظة
+        © 2025 General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese. All rights reserved.
       </div>
     </div>
   )

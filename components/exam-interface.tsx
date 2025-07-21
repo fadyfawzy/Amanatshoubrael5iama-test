@@ -123,6 +123,16 @@ export function ExamInterface() {
   }
 
   const handleSubmit = () => {
+    // Mark the exam code as used
+    const userCode = localStorage.getItem("userCode")
+    if (userCode) {
+      const usedCodes = JSON.parse(localStorage.getItem("usedExamCodes") || "[]")
+      if (!usedCodes.includes(userCode)) {
+        usedCodes.push(userCode)
+        localStorage.setItem("usedExamCodes", JSON.stringify(usedCodes))
+      }
+    }
+
     setExamCompleted(true)
     setShowEvaluation(true)
   }
@@ -189,7 +199,7 @@ export function ExamInterface() {
       <div className="bg-white border-b p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">امتحان الكشافة والمرشدات</h1>
+            <h1 className="text-xl font-bold">امتحانات الدرجات</h1>
             <p className="text-sm text-muted-foreground">
               السؤال {currentQuestion + 1} من {sampleQuestions.length}
             </p>

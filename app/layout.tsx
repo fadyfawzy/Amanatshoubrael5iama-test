@@ -1,21 +1,16 @@
-import type React from "react"
 import type { Metadata } from "next"
 import { Cairo } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 
-const cairo = Cairo({
+const cairo = Cairo({ 
   subsets: ["arabic", "latin"],
-  variable: "--font-cairo",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
-  title: "منصة الامتحانات - الأمانة العامة للكشافة والمرشدات",
-  description: "منصة امتحانات الكشافة والمرشدات بمطرانية شبرا الخيمة",
-  manifest: "/manifest.json",
-  themeColor: "#2563eb",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-    generator: 'v0.dev'
+  title: "امتحانات الدرجات | Emtihanat Eldorou'",
+  description: "General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese",
 }
 
 export default function RootLayout({
@@ -24,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl" className={cairo.variable}>
-      <body className="font-cairo bg-white min-h-screen">
+    <html lang="ar" dir="rtl">
+      <body className={`${cairo.className} font-cairo`}>
         {children}
         <Toaster />
       </body>

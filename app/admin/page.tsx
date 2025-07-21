@@ -13,7 +13,7 @@ export default function AdminDashboard() {
       color: "text-blue-600",
     },
     {
-      title: "الأسئلة المتاحة",
+      title: "الأسئلة المتاحة", 
       value: "1,234",
       description: "سؤال في النظام",
       icon: HelpCircle,
@@ -50,81 +50,125 @@ export default function AdminDashboard() {
     { user: "مينا صبحي", action: "أكمل امتحان براعم", time: "منذ ساعتين" },
   ]
 
+  const categories = [
+    { name: "براعم", count: 35, color: "bg-blue-500" },
+    { name: "أشبال", count: 42, color: "bg-green-500" },
+    { name: "كشافة", count: 38, color: "bg-purple-500" },
+    { name: "مرشدات", count: 29, color: "bg-orange-500" },
+    { name: "جوالة", count: 21, color: "bg-red-500" },
+    { name: "ذوو الهمم", count: 15, color: "bg-gray-500" },
+  ]
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">نظرة عامة</h1>
-        <p className="text-muted-foreground">مرحباً بك في لوحة تحكم منصة الامتحانات</p>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">لوحة التحكم الرئيسية</h1>
+        <p className="text-gray-600 mt-2">مرحباً بك في نظام إدارة امتحانات الدرجات</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        {stats.map((stat) => {
+          const IconComponent = stat.icon
+          return (
+            <Card key={stat.title} className="hover:shadow-md transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-700">{stat.title}</CardTitle>
+                <IconComponent className={`h-5 w-5 ${stat.color}`} />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
-      {/* Recent Activity */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Main Content Grid */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <CardTitle>النشاط الأخير</CardTitle>
-            <CardDescription>آخر الامتحانات المكتملة</CardDescription>
+            <CardTitle className="text-lg">النشاط الأخير</CardTitle>
+            <CardDescription>آخر الامتحانات والأنشطة في النظام</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-4 space-x-reverse">
-                  <div className={`h-2 w-2 rounded-full ${activity.isAlert ? "bg-red-600" : "bg-blue-600"}`} />
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">{activity.user}</p>
-                    <p className={`text-xs ${activity.isAlert ? "text-red-600" : "text-muted-foreground"}`}>
-                      {activity.action}
-                    </p>
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <div 
+                      className={`h-3 w-3 rounded-full ${activity.isAlert ? "bg-red-500" : "bg-green-500"}`} 
+                    />
+                    <div>
+                      <p className="font-medium text-gray-900">{activity.user}</p>
+                      <p className={`text-sm ${activity.isAlert ? "text-red-600" : "text-gray-600"}`}>
+                        {activity.action}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">{activity.time}</div>
+                  <span className="text-xs text-gray-500">{activity.time}</span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
+        {/* Category Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle>الفئات</CardTitle>
-            <CardDescription>توزيع الامتحانات حسب الفئة</CardDescription>
+            <CardTitle className="text-lg">توزيع الفئات</CardTitle>
+            <CardDescription>عدد الامتحانات حسب كل فئة</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { name: "براعم", count: 35, color: "bg-blue-500" },
-                { name: "أشبال", count: 42, color: "bg-green-500" },
-                { name: "كشافة", count: 38, color: "bg-purple-500" },
-                { name: "مرشدات", count: 29, color: "bg-orange-500" },
-                { name: "جوالة", count: 21, color: "bg-red-500" },
-                { name: "ذوو الهمم", count: 15, color: "bg-gray-500" },
-              ].map((category) => (
-                <div key={category.name} className="flex items-center space-x-4 space-x-reverse">
-                  <div className={`h-3 w-3 rounded-full ${category.color}`} />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{category.name}</p>
+              {categories.map((category) => (
+                <div key={category.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <div className={`h-4 w-4 rounded-full ${category.color}`} />
+                    <span className="font-medium text-gray-900">{category.name}</span>
                   </div>
-                  <div className="text-sm font-bold">{category.count}</div>
+                  <span className="text-lg font-bold text-gray-900">{category.count}</span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">إجراءات سريعة</CardTitle>
+          <CardDescription>الوصول السريع للمهام الأكثر استخداماً</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-500 transition-colors cursor-pointer">
+              <Users className="h-8 w-8 mx-auto text-blue-600 mb-2" />
+              <p className="font-medium">إضافة مستخدمين</p>
+            </div>
+            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-green-500 transition-colors cursor-pointer">
+              <HelpCircle className="h-8 w-8 mx-auto text-green-600 mb-2" />
+              <p className="font-medium">إضافة أسئلة</p>
+            </div>
+            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-purple-500 transition-colors cursor-pointer">
+              <FileText className="h-8 w-8 mx-auto text-purple-600 mb-2" />
+              <p className="font-medium">عرض النتائج</p>
+            </div>
+            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-orange-500 transition-colors cursor-pointer">
+              <AlertTriangle className="h-8 w-8 mx-auto text-orange-600 mb-2" />
+              <p className="font-medium">مراجعة التنبيهات</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Footer */}
+      <div className="text-center text-xs text-gray-500 pt-6 border-t">
+        © 2025 General Secretariat for Scouts & Guides – Shoubra El-Kheima Diocese. All rights reserved.
       </div>
     </div>
   )

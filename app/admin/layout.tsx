@@ -32,13 +32,13 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex" dir="rtl">
+    <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Fixed Right Sidebar */}
       <AdminSidebar />
 
       {/* Main Content */}
-      <main className="flex-1 mr-64 transition-all duration-300 ease-in-out">
-        <div className="min-h-screen">{children}</div>
+      <main className="min-h-screen" style={{ marginRight: '16rem', padding: '0' }}>
+        {children}
       </main>
     </div>
   )

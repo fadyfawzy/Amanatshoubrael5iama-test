@@ -85,11 +85,12 @@ export function AdminSidebar() {
 
   return (
     <TooltipProvider>
-      <div
-        className={`fixed right-0 top-0 h-full bg-white border-l border-gray-200 shadow-lg transition-all duration-300 z-50 ${
-          isCollapsed ? "w-16" : "w-64"
-        }`}
-      >
+          <div
+      className={`fixed right-0 top-0 h-full bg-white border-l border-gray-200 shadow-lg transition-all duration-300 z-50 ${
+        isCollapsed ? "w-16" : "w-64"
+      }`}
+      style={{ direction: 'rtl' }}
+    >
         {/* Header */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -126,7 +127,7 @@ export function AdminSidebar() {
                   variant={isActive ? "default" : "ghost"}
                   className={`w-full justify-start h-12 ${
                     isActive
-                      ? "bg-[hsl(var(--logo-purple))] text-white hover:bg-[hsl(var(--logo-purple))]/90"
+                      ? "bg-purple-600 text-white hover:bg-purple-700"
                       : "text-gray-700 hover:bg-gray-100"
                   } ${isCollapsed ? "px-3" : "px-4"}`}
                   onClick={() => router.push(item.url)}

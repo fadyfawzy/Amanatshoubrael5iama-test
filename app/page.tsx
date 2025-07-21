@@ -1,20 +1,17 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { Eye, EyeOff, LogIn } from "lucide-react"
+import { Eye, EyeOff, BookOpen, Users, Award } from "lucide-react"
 
 export default function LoginPage() {
-  const [userCode, setUserCode] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
+  const [examCode, setExamCode] = useState("")
+  const [showCode, setShowCode] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -28,48 +25,46 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Check admin credentials
-      if (userCode === "Fady" && password === "F@dy1313") {
+      if (examCode === "admin321") {
         localStorage.setItem("userRole", "admin")
-        localStorage.setItem("userCode", userCode)
-        localStorage.setItem("userName", "Admin")
+        localStorage.setItem("examCode", examCode)
         router.push("/admin")
         toast({
           title: "تم تسجيل الدخول بنجاح",
           description: "مرحباً بك في لوحة التحكم",
         })
       } else {
-        // Check regular user credentials against stored users
-        const storedUsers = localStorage.getItem("users")
-        if (storedUsers) {
-          try {
-            const users = JSON.parse(storedUsers)
-            const user = users.find((u: any) => u.code === userCode && u.password === password)
-            
-            if (user) {
-              localStorage.setItem("userRole", "user")
-              localStorage.setItem("userCode", userCode)
-              localStorage.setItem("userName", user.name)
-              localStorage.setItem("userChurch", user.church)
-              localStorage.setItem("userCategory", user.category)
-              router.push("/exam")
-              toast({
-                title: "تم تسجيل الدخول بنجاح",
-                description: `مرحباً ${user.name}`,
-              })
-            } else {
-              throw new Error("كود المستخدم أو كلمة المرور غير صحيحة")
-            }
-          } catch (error) {
-            throw new Error("خطأ في قراءة بيانات المستخدمين")
-          }
-        } else {
-          throw new Error("لا توجد بيانات مستخدمين في النظام")
+        // Check if exam code exists and is not used
+        const usedCodes = JSON.parse(localStorage.getItem("usedExamCodes") || "[]")
+        const validCodes = JSON.parse(localStorage.getItem("examCodes") || "[]")
+        
+        // Find the code in valid codes
+        const codeData = validCodes.find((code: any) => code.code === examCode)
+        
+        if (!codeData) {
+          throw new Error("كود الامتحان غير صحيح")
         }
+        
+        if (usedCodes.includes(examCode)) {
+          throw new Error("تم استخدام كود الامتحان مسبقاً ولا يمكن إعادة الدخول")
+        }
+
+        // Valid code, proceed to exam
+        localStorage.setItem("userRole", "student")
+        localStorage.setItem("examCode", examCode)
+        localStorage.setItem("userCategory", codeData.category)
+        localStorage.setItem("userName", codeData.name || "")
+        
+        router.push("/pre-exam")
+        toast({
+          title: "تم تسجيل الدخول بنجاح",
+          description: `مرحباً ${codeData.name || ""}`,
+        })
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "خطأ في تسجيل الدخول",
-        description: "يرجى التحقق من كود المستخدم وكلمة المرور",
+        description: error.message,
         variant: "destructive",
       })
     } finally {
@@ -78,83 +73,124 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-scout-50 to-scout-100 p-4" dir="rtl">
       <div className="w-full max-w-md space-y-8">
-        {/* Logo */}
-        <div className="text-center">
-          <div className="mx-auto h-32 w-32 mb-6">
-            <img src="/logo.png" alt="شعار الأمانة العامة للكشافة والمرشدات" className="w-full h-full object-contain" />
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <div className="mx-auto w-20 h-20 bg-scout-600 rounded-full flex items-center justify-center mb-6">
+            <BookOpen className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">منصة الامتحانات</h1>
-          <p className="text-sm text-gray-600">الأمانة العامة للكشافة والمرشدات</p>
-          <p className="text-sm text-gray-600">مطرانية شبرا الخيمة وكل توابعها</p>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-scout-900 font-arabic">
+              امتحانات الدورة
+            </h1>
+            <p className="text-lg text-scout-700 font-arabic">
+              الأمانة العامة للكشافة والمرشدات
+            </p>
+            <p className="text-base text-scout-600 font-arabic">
+              مطرانية شبرا الخيمة
+            </p>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="grid grid-cols-3 gap-4 py-4">
+          <div className="text-center space-y-2">
+            <div className="mx-auto w-12 h-12 bg-scout-100 rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-scout-600" />
+            </div>
+            <p className="text-xs text-scout-600 font-arabic">جوالة ومرشدات</p>
+          </div>
+          <div className="text-center space-y-2">
+            <div className="mx-auto w-12 h-12 bg-scout-100 rounded-lg flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-scout-600" />
+            </div>
+            <p className="text-xs text-scout-600 font-arabic">أشبال وزهرات</p>
+          </div>
+          <div className="text-center space-y-2">
+            <div className="mx-auto w-12 h-12 bg-scout-100 rounded-lg flex items-center justify-center">
+              <Award className="w-6 h-6 text-scout-600" />
+            </div>
+            <p className="text-xs text-scout-600 font-arabic">ذوي الهمم</p>
+          </div>
         </div>
 
         {/* Login Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">تسجيل الدخول</CardTitle>
-            <CardDescription className="text-center">أدخل كود المستخدم وكلمة المرور للمتابعة</CardDescription>
+        <Card className="shadow-lg border-0">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl font-arabic">دخول الامتحان</CardTitle>
+            <CardDescription className="text-center font-arabic">
+              أدخل كود الامتحان الخاص بك للمتابعة
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="userCode">كود المستخدم</Label>
-                <Input
-                  id="userCode"
-                  type="text"
-                  value={userCode}
-                  onChange={(e) => setUserCode(e.target.value)}
-                  placeholder="أدخل كود المستخدم"
-                  required
-                  className="text-right"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">كلمة المرور</Label>
+                <Label htmlFor="examCode" className="font-arabic">كود الامتحان</Label>
                 <div className="relative">
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="أدخل كلمة المرور"
+                    id="examCode"
+                    type={showCode ? "text" : "password"}
+                    value={examCode}
+                    onChange={(e) => setExamCode(e.target.value)}
+                    placeholder="أدخل كود الامتحان"
                     required
-                    className="text-right pr-10"
+                    className="text-right pr-4 pl-12 font-arabic text-lg"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     className="absolute left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowCode(!showCode)}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showCode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading || !examCode} 
+                className="w-full py-3 text-lg font-arabic bg-scout-600 hover:bg-scout-700"
+              >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    جاري تسجيل الدخول...
+                    جاري التحقق...
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <LogIn className="h-4 w-4" />
-                    تسجيل الدخول
-                  </div>
+                  "دخول الامتحان"
                 )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
+        {/* Instructions */}
+        <Card className="bg-scout-50 border-scout-200">
+          <CardContent className="pt-6">
+            <div className="space-y-3 text-sm text-scout-700 font-arabic">
+              <p className="flex items-start gap-2">
+                <span className="w-2 h-2 bg-scout-400 rounded-full mt-2 flex-shrink-0"></span>
+                يمكن استخدام كود الامتحان مرة واحدة فقط
+              </p>
+              <p className="flex items-start gap-2">
+                <span className="w-2 h-2 bg-scout-400 rounded-full mt-2 flex-shrink-0"></span>
+                بعد تسليم الامتحان لا يمكن إعادة الدخول
+              </p>
+              <p className="flex items-start gap-2">
+                <span className="w-2 h-2 bg-scout-400 rounded-full mt-2 flex-shrink-0"></span>
+                تأكد من اتصال الإنترنت قبل البدء
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Footer */}
-        <div className="text-center text-xs text-gray-500">
-          © 2025 الأمانة العامة للكشافة والمرشدات بمطرانية شبرا الخيمة - جميع الحقوق محفوظة
+        <div className="text-center text-xs text-scout-500 font-arabic space-y-1">
+          <p>© 2025 الأمانة العامة للكشافة والمرشدات – مطرانية شبرا الخيمة</p>
+          <p>جميع الحقوق محفوظة</p>
         </div>
       </div>
     </div>

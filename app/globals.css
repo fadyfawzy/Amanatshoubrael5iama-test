@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,24 +12,42 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262 83% 58%; /* Purple from logo */
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 158 64% 52%; /* Green from logo */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 199 89% 48%; /* Blue from logo */
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
-    --radius: 0.75rem;
-    --logo-purple: 262 83% 58%;
-    --logo-green: 158 64% 52%;
-    --logo-blue: 199 89% 48%;
-    --logo-brown: 25 83% 31%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
   }
 }
 
@@ -36,43 +56,111 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground font-arabic;
   }
 }
 
-.font-cairo {
-  font-family: var(--font-cairo), "Cairo", "Tajawal", "Noto Kufi Arabic", sans-serif;
+/* Arabic Font Classes */
+.font-arabic {
+  font-family: 'Cairo', 'Noto Kufi Arabic', 'Arial', sans-serif;
 }
 
 /* RTL Support */
-[dir="rtl"] .text-left {
+[dir="rtl"] {
+  direction: rtl;
   text-align: right;
 }
 
-[dir="rtl"] .text-right {
-  text-align: left;
+[dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
-/* Exam security styles */
-.exam-container {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+[dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(1rem * var(--tw-space-x-reverse));
+  margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
-.exam-container * {
-  pointer-events: auto;
+[dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
-/* Disable right-click context menu during exam */
-.no-context-menu {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+/* Progress Bar RTL */
+[dir="rtl"] .progress-bar {
+  transform: scaleX(-1);
+}
+
+/* Radio Group RTL Adjustments */
+[dir="rtl"] .radio-group-item {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Button icon adjustments for RTL */
+[dir="rtl"] .button-icon-left {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+[dir="rtl"] .button-icon-right {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+/* Exam specific styles */
+.exam-question {
+  line-height: 1.8;
+}
+
+.exam-option {
+  transition: all 0.2s ease-in-out;
+}
+
+.exam-option:hover {
+  background-color: rgba(14, 165, 233, 0.1);
+}
+
+/* Timer warning colors */
+.timer-warning {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .exam-container {
+    padding: 1rem;
+  }
+  
+  .exam-question {
+    font-size: 1.1rem;
+  }
+  
+  .exam-option {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* Print styles for results */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
 }

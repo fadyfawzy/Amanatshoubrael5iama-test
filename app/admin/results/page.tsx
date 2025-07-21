@@ -82,7 +82,7 @@ const sampleResults: ExamResult[] = [
     userCode: "1001",
     userName: "أحمد محمد",
     church: "العذراء",
-    category: "كشافة ومرشدات",
+    category: "كشافة",
     examScoreRaw: 8,
     examScorePercent: 80,
     memorizationScore: 85,
@@ -107,7 +107,7 @@ const sampleResults: ExamResult[] = [
     userCode: "1002",
     userName: "فاطمة علي",
     church: "مار جرجس",
-    category: "أشبال وزهرات",
+    category: "مرشدات",
     examScoreRaw: 6,
     examScorePercent: 60,
     memorizationScore: 75,
@@ -127,7 +127,7 @@ const sampleResults: ExamResult[] = [
     userCode: "1003",
     userName: "محمد حسن",
     church: "الأنبا أنطونيوس",
-    category: "جوالة ودليلات",
+    category: "جوالة",
     examScoreRaw: 4,
     examScorePercent: 40,
     memorizationScore: null,
@@ -146,7 +146,7 @@ const sampleResults: ExamResult[] = [
     userCode: "1004",
     userName: "نور أحمد",
     church: "العذراء",
-    category: "متقدم ورائدات",
+    category: "أشبال",
     examScoreRaw: 0,
     examScorePercent: 0,
     memorizationScore: null,
@@ -170,7 +170,7 @@ const sampleResults: ExamResult[] = [
     userCode: "1005",
     userName: "ماري",
     church: "العذراء",
-    category: "جوالة ودليلات",
+    category: "براعم",
     examScoreRaw: 9,
     examScorePercent: 90,
     memorizationScore: 95,
@@ -186,7 +186,7 @@ const sampleResults: ExamResult[] = [
   },
 ]
 
-const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
+const categories = ["براعم", "أشبال", "كشافة", "مرشدات", "جوالة", "ذوو الهمم"]
 const churches = ["العذراء", "مار جرجس", "الأنبا أنطونيوس", "الملاك ميخائيل", "مارمرقس"]
 const statusOptions = [
   { value: "pending", label: "قيد الانتظار" },

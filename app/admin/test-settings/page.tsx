@@ -34,7 +34,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-const categories = ["براعم وذو الهمم", "أشبال وزهرات", "كشافة ومرشدات", "متقدم ورائدات", "جوالة ودليلات"]
+const categories = ["براعم", "أشبال", "كشافة", "مرشدات", "جوالة", "ذوو الهمم"]
 
 interface ExamSettings {
   category: string

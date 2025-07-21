@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer decorative border in purple -->
+  <path d="M100 10 L110 20 L120 10 L130 20 L140 10 L150 20 L160 15 L170 25 L180 20 L185 30 L190 25 L185 35 L190 45 L185 55 L190 65 L185 75 L190 85 L185 95 L190 105 L185 115 L190 125 L185 135 L190 145 L185 155 L190 165 L185 175 L180 180 L170 175 L160 185 L150 180 L140 190 L130 180 L120 190 L110 180 L100 190 L90 180 L80 190 L70 180 L60 190 L50 180 L40 185 L30 175 L20 180 L15 170 L10 175 L15 165 L10 155 L15 145 L10 135 L15 125 L10 115 L15 105 L10 95 L15 85 L10 75 L15 65 L10 55 L15 45 L10 35 L15 25 L20 20 L30 25 L40 15 L50 20 L60 10 L70 20 L80 10 L90 20 Z" fill="#8B4B9C" stroke="#8B4B9C" stroke-width="2"/>
+  
+  <!-- Main circular frame -->
+  <circle cx="100" cy="100" r="75" fill="white" stroke="#2C3E50" stroke-width="3"/>
+  
+  <!-- Top text curve -->
+  <path id="top-curve" d="M 35,100 A 65,65 0 0,1 165,100" fill="none"/>
+  <text font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2C3E50">
+    <textPath href="#top-curve" startOffset="50%" text-anchor="middle">مطرانية شبرا الخيمة وكل توابعها</textPath>
+  </text>
+  
+  <!-- Bottom text curve -->
+  <path id="bottom-curve" d="M 165,100 A 65,65 0 0,1 35,100" fill="none"/>
+  <text font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2C3E50">
+    <textPath href="#bottom-curve" startOffset="50%" text-anchor="middle">الأمانة العامة للكشافة والمرشدات</textPath>
+  </text>
+  
+  <!-- Central tent/mountain design in green -->
+  <path d="M100 45 L85 75 L70 85 L100 85 L130 85 L115 75 Z" fill="#2E8B57" stroke="#2E8B57" stroke-width="2"/>
+  <path d="M100 45 L115 75 L130 85 L100 85 L70 85 L85 75 Z" fill="#2E8B57" stroke="#2E8B57" stroke-width="2"/>
+  
+  <!-- Cross in brown -->
+  <path d="M100 45 L105 50 L100 55 L95 50 Z" fill="#8B4513"/>
+  <rect x="98" y="48" width="4" height="15" fill="#8B4513"/>
+  <rect x="92" y="52" width="16" height="4" fill="#8B4513"/>
+  
+  <!-- Central pole in brown -->
+  <rect x="98" y="55" width="4" height="25" fill="#8B4513"/>
+  
+  <!-- Water waves in blue -->
+  <path d="M 70 110 Q 80 105 90 110 T 110 110 T 130 110" stroke="#4169E1" stroke-width="3" fill="none"/>
+  <path d="M 70 115 Q 80 110 90 115 T 110 115 T 130 115" stroke="#4169E1" stroke-width="3" fill="none"/>
+  <path d="M 70 120 Q 80 115 90 120 T 110 120 T 130 120" stroke="#4169E1" stroke-width="3" fill="none"/>
+  
+  <!-- Scout fleur-de-lis at bottom in purple -->
+  <path d="M100 140 L95 150 L100 155 L105 150 Z M95 145 L90 155 L95 160 L100 155 Z M105 145 L110 155 L105 160 L100 155 Z" fill="#8B4B9C"/>
+  
+  <!-- Decorative laurel branches in green -->
+  <g transform="translate(20,140)">
+    <path d="M0 0 Q5 -5 10 0 Q15 5 20 0 Q25 -5 30 0 Q35 5 40 0" stroke="#2E8B57" stroke-width="2" fill="none"/>
+    <ellipse cx="5" cy="-2" rx="3" ry="6" fill="#2E8B57" transform="rotate(-30)"/>
+    <ellipse cx="15" cy="2" rx="3" ry="6" fill="#2E8B57" transform="rotate(30)"/>
+    <ellipse cx="25" cy="-2" rx="3" ry="6" fill="#2E8B57" transform="rotate(-30)"/>
+    <ellipse cx="35" cy="2" rx="3" ry="6" fill="#2E8B57" transform="rotate(30)"/>
+  </g>
+  
+  <g transform="translate(140,140) scale(-1,1)">
+    <path d="M0 0 Q5 -5 10 0 Q15 5 20 0 Q25 -5 30 0 Q35 5 40 0" stroke="#2E8B57" stroke-width="2" fill="none"/>
+    <ellipse cx="5" cy="-2" rx="3" ry="6" fill="#2E8B57" transform="rotate(-30)"/>
+    <ellipse cx="15" cy="2" rx="3" ry="6" fill="#2E8B57" transform="rotate(30)"/>
+    <ellipse cx="25" cy="-2" rx="3" ry="6" fill="#2E8B57" transform="rotate(-30)"/>
+    <ellipse cx="35" cy="2" rx="3" ry="6" fill="#2E8B57" transform="rotate(30)"/>
+  </g>
+  
+  <!-- Decorative purple elements -->
+  <circle cx="50" cy="30" r="4" fill="#8B4B9C"/>
+  <circle cx="150" cy="30" r="4" fill="#8B4B9C"/>
+  <circle cx="30" cy="60" r="3" fill="#8B4B9C"/>
+  <circle cx="170" cy="60" r="3" fill="#8B4B9C"/>
+  <circle cx="30" cy="140" r="3" fill="#8B4B9C"/>
+  <circle cx="170" cy="140" r="3" fill="#8B4B9C"/>
+  <circle cx="50" cy="170" r="4" fill="#8B4B9C"/>
+  <circle cx="150" cy="170" r="4" fill="#8B4B9C"/>
+</svg>
